@@ -11,7 +11,6 @@ final class GoogleBooksAPIViewModel : ObservableObject {
     
     @Published var data = [Book]()
 
-
     func getData(request: String) -> Void{
         let url = "https://www.googleapis.com/books/v1/volumes?q=" + request
         let session = URLSession(configuration: .default)
@@ -22,49 +21,49 @@ final class GoogleBooksAPIViewModel : ObservableObject {
             }
             
             let json = try! JSON(data: data!)
-            let items = json["items"].array!
-            var flag:Bool = false
+//            let items = json["items"].array!
+            guard let items = json["items"].array else {
+                print("error")
+                self.setUpManualInput()
+                return
+            }
             for i in items{
-                if(flag != true){
-                    let id = i["id"].stringValue
-                    
-                    let title = i["volumeInfo"]["title"].stringValue
-                    
-                    var authors = i["volumeInfo"]["authors"].array
-                    if authors == nil {
-                        authors = ["データなし"]
-                    }
-
-                    let isbn = i["volumeInfo"]["industryIdentifiers"].array!
-                    
-                    var author = ""
-                    
-                    for j in authors!{
-                      
-                        author += "\(j.stringValue)"
-                    }
-                    
-                    let description = i["volumeInfo"]["description"].stringValue
-                    
-                    let imurl = i["volumeInfo"]["imageLinks"]["thumbnail"].stringValue
-                    
-                    let url1 = i["volumeInfo"]["previewLink"].stringValue
-                    
-                    for test in isbn {
-                        if(test["identifier"].string! == request){
-                            DispatchQueue.main.async {
-                                self.data.append(Book(id: id, title: title, authors: author, desc: description, imgUrl: imurl, url: url1))
-                            }
-                            flag.toggle()
-                            break
-                        }
-                    }
+                let id = i["id"].stringValue
+                
+                let title = i["volumeInfo"]["title"].stringValue
+                
+                var authors = i["volumeInfo"]["authors"].array
+                if authors == nil {
+                    authors = ["データなし"]
                 }
-                else{
-                    break
+
+                //let isbn = i["volumeInfo"]["industryIdentifiers"].array!
+                
+                var author = ""
+                
+                for j in authors!{
+                  
+                    author += "\(j.stringValue)"
+                }
+                
+                let description = i["volumeInfo"]["description"].stringValue
+                
+                let imurl = i["volumeInfo"]["imageLinks"]["thumbnail"].stringValue
+                
+                let url1 = i["volumeInfo"]["previewLink"].stringValue
+                
+                DispatchQueue.main.async {
+                    self.data.append(Book(id: id, title: title, authors: author, desc: description, imgUrl: imurl, url: url1))
                 }
             }
+            self.setUpManualInput()
         }.resume()
+    }
+    
+    func setUpManualInput() {
+        DispatchQueue.main.async {
+            self.data.append(Book(id: "", title: "データを手入力", authors: "", desc: "書籍を見つけることができなかったた、入力してください。", imgUrl: "", url: ""))
+        }
     }
 }
 
