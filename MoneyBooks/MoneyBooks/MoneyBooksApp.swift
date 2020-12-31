@@ -14,6 +14,7 @@ struct MoneyBooksApp: App {
     var body: some Scene {
         WindowGroup {
             //BarcodeScannerView()
+            //LocalImageView()
             ResultSearchBookView()
         }
 //            ContentView()

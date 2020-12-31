@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LocalImageView: View {
-    @State private var image: Image = Image("sea")
+    @State private var image: Image = Image("test")
     @State private var showingImagePicker = false
     @State private var inputImage: UIImage?
     
@@ -19,12 +19,11 @@ struct LocalImageView: View {
         }) {
             image
                 .resizable()
-                .renderingMode(.original)
-                .frame(width: 100, height: 100)
-            
-            Text("Tap Me!!")
+                .scaledToFit()
+                
         }.sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
             ImagePicker(image: self.$inputImage)
+                .frame(alignment: .leading)
         }
     }
     
