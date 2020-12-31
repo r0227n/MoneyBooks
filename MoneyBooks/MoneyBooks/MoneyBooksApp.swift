@@ -13,8 +13,9 @@ struct MoneyBooksApp: App {
 
     var body: some Scene {
         WindowGroup {
-            BarcodeScannerView()
-            //ResultSearchBookView()
+            //BarcodeScannerView()
+            //LocalImageView()
+            ResultSearchBookView()
         }
 //            ContentView()
 //                .environment(\.managedObjectContext, persistenceController.container.viewContext)

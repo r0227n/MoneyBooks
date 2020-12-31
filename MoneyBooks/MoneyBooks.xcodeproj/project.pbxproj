@@ -13,6 +13,7 @@
 		2A244AD8258366700074F2F1 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A244AD7258366700074F2F1 /* BarcodeScannerView.swift */; };
 		2A244ADB2583667B0074F2F1 /* BarcodeScannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A244ADA2583667B0074F2F1 /* BarcodeScannerViewModel.swift */; };
 		2A244ADE258437390074F2F1 /* ResultSearchBookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */; };
+		2A42D1EE259D633F007D8A76 /* LocalImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A42D1ED259D633F007D8A76 /* LocalImageView.swift */; };
 		2A4E8F8B25834B4A00C0C24D /* MoneyBooksApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4E8F8A25834B4A00C0C24D /* MoneyBooksApp.swift */; };
 		2A4E8F8D25834B4A00C0C24D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4E8F8C25834B4A00C0C24D /* ContentView.swift */; };
 		2A4E8F8F25834B4A00C0C24D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A4E8F8E25834B4A00C0C24D /* Assets.xcassets */; };
@@ -28,6 +29,7 @@
 		2A244AD7258366700074F2F1 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		2A244ADA2583667B0074F2F1 /* BarcodeScannerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarcodeScannerViewModel.swift; sourceTree = "<group>"; };
 		2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchBookView.swift; sourceTree = "<group>"; };
+		2A42D1ED259D633F007D8A76 /* LocalImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalImageView.swift; sourceTree = "<group>"; };
 		2A4E8F8725834B4A00C0C24D /* MoneyBooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoneyBooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A4E8F8A25834B4A00C0C24D /* MoneyBooksApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyBooksApp.swift; sourceTree = "<group>"; };
 		2A4E8F8C25834B4A00C0C24D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 		2A663AC625834E9900EBBCEF /* View */ = {
 			isa = PBXGroup;
 			children = (
+				2A42D1ED259D633F007D8A76 /* LocalImageView.swift */,
 				2A244AD7258366700074F2F1 /* BarcodeScannerView.swift */,
 				2A244ACF2583662A0074F2F1 /* UIKitComponents */,
 				2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */,
@@ -263,6 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A244AD8258366700074F2F1 /* BarcodeScannerView.swift in Sources */,
+				2A42D1EE259D633F007D8A76 /* LocalImageView.swift in Sources */,
 				2A244AD4258366490074F2F1 /* ScannerViewController.swift in Sources */,
 				2A4E8F9425834B4A00C0C24D /* Persistence.swift in Sources */,
 				2A4E8F9725834B4A00C0C24D /* MoneyBooks.xcdatamodeld in Sources */,
