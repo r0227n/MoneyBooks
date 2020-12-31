@@ -67,6 +67,16 @@ struct ResultSearchBookView: View {
     
     var typeAddBook : some View{
         Form {
+            Section(header: Text("表紙")){
+                HStack {
+                    Spacer()
+                    LocalImageView()
+                        .frame(width: 200, height: 200, alignment: .center)
+                    Spacer()
+                }
+            }
+            
+                
             Section(header: Text("本のタイトル")){
                 TextField("本のタイトルを入力してください", text: $manulInput.title)
                     .textFieldStyle(RoundedBorderTextFieldStyle())  // 入力域のまわりを枠で囲む
@@ -147,7 +157,10 @@ struct ResultSearchBookView: View {
 struct ResultSearchBookView_Previews: PreviewProvider {
     static var previews: some View {
 //        ResultSearchBookView(request: .constant("9784061538238"))
-        ResultSearchBookView()
+        Group {
+            ResultSearchBookView()
+            ResultSearchBookView()
+        }
     }
 }
  
