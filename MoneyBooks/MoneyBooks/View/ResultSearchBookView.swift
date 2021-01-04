@@ -12,12 +12,11 @@ import Foundation
 class ManualInput : ObservableObject {
     @Published var title: String = ""
     @Published var author: String = ""
-    @Published var selection = 1
+    @Published var dateOfPurchase = Date()
+    @Published var stateOfControl = 1
     let managementStatus = ["読破", "積み本", "欲しい本"]
-    @Published var strIntSticker: String = ""
-    @Published var strIntYour: String = ""
-    @Published var stickerPrice: Int = 0
-    @Published var yourValuePrice:  Int = 0
+    @Published var priceOfSticker: String = ""
+    @Published var yourValue: String = ""
     @Published var evaluation: String = ""
     @Published var memo: String = ""
     @Published var impressions: String = ""
@@ -29,43 +28,50 @@ struct ResultSearchBookView: View {
     @StateObject var Books = GoogleBooksAPIViewModel()
     @StateObject var manulInput = ManualInput()
     @State var show = false
-    //@Binding var request:String
+    @Binding var request:String
     
+    @State var setImage:UIImage?
+    
+    @Environment(\.managedObjectContext) private var viewContext
     
     
     var body : some View{
-//        List(Books.data){i in
-//            HStack{
-//                if i.imgUrl != ""{
-//                  WebImage(url: URL(string: i.imgUrl)!).resizable().frame(width: 120, height: 170).cornerRadius(10) // SDWebImageのメソッド
-//                }
-//                else{
-//                    Image(systemName: "nosign").resizable().frame(width: 120, height: 170).cornerRadius(10)
-//                }
-//
-//                VStack(alignment: .leading, spacing: 10) {
-//
-//                    Text(i.title).fontWeight(.bold)
-//
-//                    Text(i.authors)
-//
-//                    Text(i.desc).font(.caption).lineLimit(4).multilineTextAlignment(.leading)
-//                }
-//            }.onTapGesture {
-//                if(i.title != "データを手入力"){
-//                    print("CoreDataに登録")
-//                }else{
-//                    print("手入力画面に遷移")
-//                }
-//            }
-//        }.onAppear(perform: {
-//            print("SearchNow", request)
-//            Books.getData(request: request)
-//        })
-        NavigationView {
-            typeAddBook
-        }
-        
+        NavigationLink(
+            destination: typeAddBook,
+            isActive: $show,
+            label: {
+                //
+            })
+        List(Books.data){i in
+            HStack{
+                if i.imgUrl != ""{
+                  WebImage(url: URL(string: i.imgUrl)!).resizable().frame(width: 120, height: 170).cornerRadius(10) // SDWebImageのメソッド
+                }
+                else{
+                    Image(systemName: "nosign").resizable().frame(width: 120, height: 170).cornerRadius(10)
+                }
+
+                VStack(alignment: .leading, spacing: 10) {
+
+                    Text(i.title).fontWeight(.bold)
+
+                    Text(i.authors)
+
+                    Text(i.desc).font(.caption).lineLimit(4).multilineTextAlignment(.leading)
+                }
+            }.onTapGesture {
+                if(i.title != "データを手入力"){
+                    print("CoreDataに登録")
+                }else{
+                    print("手入力画面に遷移")
+                    show = true
+                }
+            }
+        }.onAppear(perform: {
+            print("SearchNow", request)
+            Books.getData(request: request)
+        })
+
     }
     
     var typeAddBook : some View{
@@ -73,20 +79,23 @@ struct ResultSearchBookView: View {
             Section(header: Text("表紙")){
                 HStack {
                     Spacer()
-                    LocalImageView()
+                    LocalImageView(inputImage: $setImage)
                         .frame(width: 200, height: 200, alignment: .center)
                     Spacer()
                 }
                 TextField("本のタイトルを入力してください", text: $manulInput.title)
                 TextField("作者を入力してください", text: $manulInput.author)
                 
-                TextField("定価を入力してください", text: $manulInput.strIntSticker,
+                TextField("定価を入力してください", text: $manulInput.priceOfSticker,
                           onEditingChanged: { begin in
-                            manulInput.strIntSticker = checkerYen(begin: begin, typeMoney: manulInput.strIntSticker)
+                            manulInput.priceOfSticker = checkerYen(begin: begin, typeMoney: manulInput.priceOfSticker)
                             
                           })
                     .keyboardType(.numbersAndPunctuation)
-                Picker(selection: $manulInput.selection, label: Text("管理先を指定してください")) {
+                
+                DatePicker("購入日", selection: $manulInput.dateOfPurchase, displayedComponents: .date)
+                
+                Picker(selection: $manulInput.stateOfControl, label: Text("管理先を指定してください")) {
                     ForEach(0 ..< manulInput.managementStatus.count) { num in
                         Text(self.manulInput.managementStatus[num])
                     }
@@ -95,7 +104,7 @@ struct ResultSearchBookView: View {
             Section(header: Text("メモ")){
                 TextEditor(text: $manulInput.memo)
             }
-            if(manulInput.selection == 0){
+            if(manulInput.stateOfControl == 0){
                 Group {
                     Section(header: Text("感想")){
                         TextEditor(text: $manulInput.impressions)
@@ -124,9 +133,9 @@ struct ResultSearchBookView: View {
                                     .foregroundColor(.gray)
                             }
                         }
-                        TextField("どれぐらいの価値ですか？", text: $manulInput.strIntYour,
+                        TextField("どれぐらいの価値ですか？", text: $manulInput.yourValue,
                                   onEditingChanged: { begin in
-                                    manulInput.strIntYour = checkerYen(begin: begin, typeMoney: manulInput.strIntYour)
+                                    manulInput.yourValue = checkerYen(begin: begin, typeMoney: manulInput.yourValue)
                                   })
                             .keyboardType(.numbersAndPunctuation)
                     }
@@ -135,6 +144,7 @@ struct ResultSearchBookView: View {
             
             Button(action: {
                 print("push")
+                addItem()
             }, label: {
                 HStack {
                     Spacer()
@@ -155,22 +165,40 @@ struct ResultSearchBookView: View {
         return indexOfYen
     }
     
-    func dataSetMoney(setMoney: String) -> Int {
+    private func addItem() {
+        withAnimation {
+            let newItem = MoneyBooks.Books(context: viewContext)
+            var pickedImage = setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
+            
+            if pickedImage == nil { // 画像が選択されていない場合
+                pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
+            }
+            newItem.img = pickedImage!
+            newItem.title = manulInput.title
+            newItem.author =  manulInput.author
+            newItem.priceOfSticker = dataSetMoney(setMoney: manulInput.priceOfSticker)
+            newItem.dateOfPurchase = manulInput.dateOfPurchase
+            newItem.stateOfControl = Int16(manulInput.stateOfControl)
+            newItem.memo = manulInput.memo
+            newItem.impressions =  manulInput.impressions
+            newItem.favorite = Int16(manulInput.favorite)
+            newItem.yourValue = dataSetMoney(setMoney: manulInput.yourValue)
+            do {
+                try viewContext.save()
+            } catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
+    }
+    
+    func dataSetMoney(setMoney: String) -> Int16 {
         var recordOfMoney = setMoney
         if(recordOfMoney.contains("円")){
             recordOfMoney = String(recordOfMoney.dropLast(1))
-            return Int(recordOfMoney)!
+            return Int16(recordOfMoney)!
         }else{
             return 0
         }
     }
-    
 }
-
-
-struct ResultSearchBookView_Previews: PreviewProvider {
-    static var previews: some View {
-        ResultSearchBookView()
-    }
-}
- 

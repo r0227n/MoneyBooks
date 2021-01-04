@@ -9,13 +9,19 @@ import SwiftUI
 
 @main
 struct MoneyBooksApp: App {
-    //let persistenceController = PersistenceController.shared
+    let persistenceController = PersistenceController.shared
 
     var body: some Scene {
         WindowGroup {
-            //BarcodeScannerView()
-            //LocalImageView()
-            ResultSearchBookView()
+            TabView{
+                BarcodeScannerView()
+                    .tabItem { Image(systemName: "person") }
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                TestCoreData()
+                    .tabItem { Image(systemName: "book") }
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            }
+             
         }
 //            ContentView()
 //                .environment(\.managedObjectContext, persistenceController.container.viewContext)

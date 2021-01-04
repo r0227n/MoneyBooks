@@ -21,12 +21,12 @@ struct BarcodeScannerView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 Spacer()
                     .frame(height: 60)
-//                NavigationLink(
-//                    destination: ResultSearchBookView(request: $scannedCode),
-//                    isActive: $loadingCompleted,
-//                    label: {
-//                        //
-//                    })
+                NavigationLink(
+                    destination: ResultSearchBookView(request: $scannedCode),
+                    isActive: $loadingCompleted,
+                    label: {
+                        //
+                    })
             }
             .navigationTitle("Barcode Scanner")
             .onChange(of: scannedCode, perform: { value in
