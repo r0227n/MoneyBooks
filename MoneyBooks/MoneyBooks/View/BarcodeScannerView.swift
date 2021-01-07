@@ -14,7 +14,7 @@ struct BarcodeScannerView: View {
     @State var loadingCompleted = false
     @State var scannedCode: String = "9784061538238"
     @Environment(\.presentationMode) var presentationMode
-    
+    @EnvironmentObject var displayStatus: DisplayStatus
     
     var body: some View {
         NavigationView {
@@ -22,12 +22,17 @@ struct BarcodeScannerView: View {
                 ScannerView(scannedCode: $scannedCode)
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
-                    //.frame(maxWidth: .infinity, maxHeight: .infinity)
                 NavigationLink(
                     destination: ResultSearchBookView(request: $scannedCode),
                     isActive: $loadingCompleted,
                     label: { })
             }
+            .onAppear(perform: {
+                if(displayStatus.closedSearchView != false){
+                    displayStatus.closedSearchView = false
+                    self.presentationMode.wrappedValue.dismiss()
+                }
+            })
             .onChange(of: scannedCode, perform: { value in
                 if(scannedCode.prefix(3) == "978"){  // BarCodeの上の段
                     loadingCompleted = true
@@ -47,6 +52,7 @@ struct BarcodeScannerView: View {
                 }
                 ToolbarItem(placement: .navigationBarLeading){
                     Button(action: {
+                        displayStatus.closedSearchView = false
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("キャンセル")

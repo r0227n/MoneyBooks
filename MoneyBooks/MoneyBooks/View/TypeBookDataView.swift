@@ -26,6 +26,10 @@ struct TypeBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject var manulInput = ManualInput()
     @State var setImage:UIImage?
+    @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var displayStatus: DisplayStatus
+
+    
     var body: some View {
         Form {
             Section(header: Text("表紙")){
@@ -51,7 +55,7 @@ struct TypeBookDataView: View {
                     ForEach(0 ..< manulInput.managementStatus.count) { num in
                         Text(self.manulInput.managementStatus[num])
                     }
-                }//.pickerStyle(SegmentedPickerStyle())
+                }
             }.onAppear(perform: {
                 print(manulInput.managementStatus[manulInput.stateOfControl])
                 print(manulInput.stateOfControl)
@@ -97,15 +101,41 @@ struct TypeBookDataView: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitle(Text("手入力画面"))
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
                     addItem()
+                    displayStatus.closedSearchView = true
+                    print("1",displayStatus.closedSearchView )
+                    self.presentationMode.wrappedValue.dismiss()
+                    print("2",displayStatus.closedSearchView )
                 }, label: {
                     Text("追加")
                 })
             }
+            ToolbarItem(placement: .navigationBarLeading){
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(.blue)
+                        Text("戻る")
+                    }
+                })
+            }
         })
+        .gesture(
+            DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
+                .onEnded({ value in // end time
+                    if value.startLocation.x < CGFloat(100.0){  // スワイプの開始地点が左端
+                        self.presentationMode.wrappedValue.dismiss()
+                    }
+                })
+        )
     }
     
     private func addItem() {
