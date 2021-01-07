@@ -30,7 +30,7 @@ struct TestCoreData: View {
                     VStack{
                         Text(item.title!)
                         Text(item.author!)
-                        Text("\(item.priceOfSticker)")
+                        Text("\(item.regularPrice)")
                         Text(dateFormatter(date: item.dateOfPurchase))
                         Text("\(item.stateOfControl)")
                         Text(item.memo ?? "")

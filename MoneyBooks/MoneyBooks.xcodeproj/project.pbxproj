@@ -14,6 +14,7 @@
 		2A244AD8258366700074F2F1 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A244AD7258366700074F2F1 /* BarcodeScannerView.swift */; };
 		2A244ADB2583667B0074F2F1 /* BarcodeScannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A244ADA2583667B0074F2F1 /* BarcodeScannerViewModel.swift */; };
 		2A244ADE258437390074F2F1 /* ResultSearchBookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */; };
+		2A33B42025A49AA6001DE5CD /* TypeBookDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A33B41F25A49AA6001DE5CD /* TypeBookDataView.swift */; };
 		2A42D1EE259D633F007D8A76 /* LocalImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A42D1ED259D633F007D8A76 /* LocalImageView.swift */; };
 		2A4E8F8B25834B4A00C0C24D /* MoneyBooksApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4E8F8A25834B4A00C0C24D /* MoneyBooksApp.swift */; };
 		2A4E8F8D25834B4A00C0C24D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4E8F8C25834B4A00C0C24D /* ContentView.swift */; };
@@ -22,6 +23,8 @@
 		2A4E8F9425834B4A00C0C24D /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4E8F9325834B4A00C0C24D /* Persistence.swift */; };
 		2A4E8F9725834B4A00C0C24D /* MoneyBooks.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2A4E8F9525834B4A00C0C24D /* MoneyBooks.xcdatamodeld */; };
 		2A663AC925834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A663AC825834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift */; };
+		2ACD014825A2DCA90006C19A /* HomeMoneyBooksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */; };
+		2ACD014B25A361B70006C19A /* ListManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD014A25A361B60006C19A /* ListManagementView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +34,7 @@
 		2A244AD7258366700074F2F1 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		2A244ADA2583667B0074F2F1 /* BarcodeScannerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarcodeScannerViewModel.swift; sourceTree = "<group>"; };
 		2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchBookView.swift; sourceTree = "<group>"; };
+		2A33B41F25A49AA6001DE5CD /* TypeBookDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeBookDataView.swift; sourceTree = "<group>"; };
 		2A42D1ED259D633F007D8A76 /* LocalImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalImageView.swift; sourceTree = "<group>"; };
 		2A4E8F8725834B4A00C0C24D /* MoneyBooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoneyBooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A4E8F8A25834B4A00C0C24D /* MoneyBooksApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyBooksApp.swift; sourceTree = "<group>"; };
@@ -41,6 +45,8 @@
 		2A4E8F9625834B4A00C0C24D /* MoneyBooks.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MoneyBooks.xcdatamodel; sourceTree = "<group>"; };
 		2A4E8F9825834B4A00C0C24D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2A663AC825834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleBooksAPIViewModel.swift; sourceTree = "<group>"; };
+		2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMoneyBooksView.swift; sourceTree = "<group>"; };
+		2ACD014A25A361B60006C19A /* ListManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListManagementView.swift; sourceTree = "<group>"; };
 		3F424B48F8D3AC380C5B6C2C /* Pods-MoneyBooks.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoneyBooks.debug.xcconfig"; path = "Target Support Files/Pods-MoneyBooks/Pods-MoneyBooks.debug.xcconfig"; sourceTree = "<group>"; };
 		EA35F50AE3922794E27D587C /* Pods_MoneyBooks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MoneyBooks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6349F2CB5E400455327014A /* Pods-MoneyBooks.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoneyBooks.release.xcconfig"; path = "Target Support Files/Pods-MoneyBooks/Pods-MoneyBooks.release.xcconfig"; sourceTree = "<group>"; };
@@ -121,10 +127,13 @@
 			isa = PBXGroup;
 			children = (
 				2A1FF38125A2100F001938E6 /* TestCoreData.swift */,
+				2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */,
 				2A42D1ED259D633F007D8A76 /* LocalImageView.swift */,
 				2A244AD7258366700074F2F1 /* BarcodeScannerView.swift */,
+				2A33B41F25A49AA6001DE5CD /* TypeBookDataView.swift */,
 				2A244ACF2583662A0074F2F1 /* UIKitComponents */,
 				2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */,
+				2ACD014A25A361B60006C19A /* ListManagementView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -269,12 +278,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A1FF38225A2100F001938E6 /* TestCoreData.swift in Sources */,
+				2ACD014825A2DCA90006C19A /* HomeMoneyBooksView.swift in Sources */,
 				2A244AD8258366700074F2F1 /* BarcodeScannerView.swift in Sources */,
 				2A42D1EE259D633F007D8A76 /* LocalImageView.swift in Sources */,
 				2A244AD4258366490074F2F1 /* ScannerViewController.swift in Sources */,
+				2ACD014B25A361B70006C19A /* ListManagementView.swift in Sources */,
 				2A4E8F9425834B4A00C0C24D /* Persistence.swift in Sources */,
 				2A4E8F9725834B4A00C0C24D /* MoneyBooks.xcdatamodeld in Sources */,
 				2A663AC925834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift in Sources */,
+				2A33B42025A49AA6001DE5CD /* TypeBookDataView.swift in Sources */,
 				2A244AD1258366440074F2F1 /* ScannerView.swift in Sources */,
 				2A244ADB2583667B0074F2F1 /* BarcodeScannerViewModel.swift in Sources */,
 				2A4E8F8D25834B4A00C0C24D /* ContentView.swift in Sources */,
