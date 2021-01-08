@@ -13,9 +13,9 @@ class DisplayStatus : ObservableObject {
     @Published var read:Int = 0
     @Published var buy:Int = 0
     @Published var want:Int = 0
-    @Published var showBarCodeFlag:Bool = false
     @Published var closedSearchView:Bool = false
-    let managementStatus = ["読破", "積み本", "欲しい本"]
+    @Published var managementNumber:Int = 0
+    var managementStatus = ["読破", "積み本", "欲しい本"]
 }
 
 struct HomeMoneyBooksView: View {
@@ -26,6 +26,8 @@ struct HomeMoneyBooksView: View {
 
     @EnvironmentObject var displayStatus: DisplayStatus
     
+    @State var showBarCodeFlag:Bool = false
+    
     var body: some View {
         NavigationView {
             Form {
@@ -34,13 +36,18 @@ struct HomeMoneyBooksView: View {
                 }
                 Section(header: Text("マイリスト")){
                     NavigationLink(
-                        destination: ListManagementView(numberOfBooks: $displayStatus.read),
+                        destination: ListManagementView(numberOfBooks: $displayStatus.read,
+                                                        naviTitle: $displayStatus.managementStatus[displayStatus.managementNumber]),
                         label: {
-                            HStack {
-                                Text(displayStatus.managementStatus[0])
-                                Spacer()
-                                Text("\(displayStatus.read)")
-                            }.padding()
+                            Button(action: {
+                                    displayStatus.managementNumber = 0
+                            },label:{
+                                HStack {
+                                    Text(displayStatus.managementStatus[0])
+                                    Spacer()
+                                    Text("\(displayStatus.read)")
+                                }.padding()
+                            })
                         })
                     NavigationLink(
                         destination: Text("積み本"),
@@ -65,7 +72,7 @@ struct HomeMoneyBooksView: View {
             .toolbar(content: {
                 ToolbarItemGroup(placement: .bottomBar) {
                     Button(action: {
-                        displayStatus.showBarCodeFlag.toggle()
+                        showBarCodeFlag.toggle()
                     }, label: {
                         Image(systemName: "plus.circle.fill")
                         Text("書籍を追加")
@@ -73,12 +80,25 @@ struct HomeMoneyBooksView: View {
                         Spacer()
                 }
             })
-            .sheet(isPresented: $displayStatus.showBarCodeFlag) {
+            .sheet(isPresented: $showBarCodeFlag) {
                 BarcodeScannerView()
             }
         }
         .onAppear(perform: {
-            countUp()
+            items.forEach {
+                displayStatus.regular += Int($0.regularPrice)
+                displayStatus.your += Int($0.yourValue)
+                switch($0.stateOfControl){
+                case 0:
+                    displayStatus.read += 1
+                case 1:
+                    displayStatus.buy += 1
+                case 2:
+                    displayStatus.want += 1
+                default:
+                    print("error")
+                }
+            }
         })
     }
     
@@ -94,23 +114,6 @@ struct HomeMoneyBooksView: View {
                 Spacer()
                 Text("\(displayStatus.your)"+"円")
             }.padding()
-        }
-    }
-    
-    private func countUp() {
-        items.forEach {
-            displayStatus.regular += Int($0.regularPrice)
-            displayStatus.your += Int($0.yourValue)
-            switch($0.stateOfControl){
-            case 1:
-                displayStatus.read += Int($0.stateOfControl)
-            case 2:
-                displayStatus.buy += Int($0.stateOfControl)
-            case 3:
-                displayStatus.want += Int($0.stateOfControl)
-            default:
-                print("error")
-            }
         }
     }
 }

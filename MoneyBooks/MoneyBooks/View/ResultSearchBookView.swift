@@ -9,6 +9,20 @@ import SwiftUI
 import SDWebImageSwiftUI
 import Foundation
 
+class ManualInput : ObservableObject {
+    @Published var title: String = ""
+    @Published var author: String = ""
+    @Published var dateOfPurchase = Date()
+    @Published var stateOfControl = 1
+    @Published var regularPrice: String = ""
+    @Published var yourValue: String = ""
+    @Published var evaluation: String = ""
+    @Published var memo: String = ""
+    @Published var impressions: String = ""
+    @Published var favorite: Int = 1
+    @Published var unfavorite: Int = 4
+}
+
 
 struct ResultSearchBookView: View {
     @StateObject var Books = GoogleBooksAPIViewModel()
@@ -16,10 +30,20 @@ struct ResultSearchBookView: View {
     @Binding var request:String
     @EnvironmentObject var dislayStatus: DisplayStatus
     @Environment(\.presentationMode) var presentationMode
+    @StateObject var manualInput = ManualInput()
     
     var body : some View{
         NavigationLink(
-            destination: TypeBookDataView(),
+            destination: TypeBookDataView(title: $manualInput.title,
+                                          author: $manualInput.author,
+                                          dateOfPurchase: $manualInput.dateOfPurchase,
+                                          edit: $typeFlag,
+                                          regularPrice: $manualInput.regularPrice,
+                                          yourValue: $manualInput.yourValue,
+                                          memo: $manualInput.memo,
+                                          impressions: $manualInput.impressions,
+                                          favorite: $manualInput.favorite,
+                                          unfavorite: $manualInput.unfavorite),
             isActive: $typeFlag,
             label: {})
         List(Books.data){i in

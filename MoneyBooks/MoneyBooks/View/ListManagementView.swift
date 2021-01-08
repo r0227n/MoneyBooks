@@ -18,6 +18,8 @@ struct ListManagementView: View {
     
     @Environment(\.presentationMode) var presentationMode
     @Binding var numberOfBooks:Int
+    @Binding var naviTitle:String
+    @State private var openBarCodeFlag:Bool = false
     
     var body: some View {
         List{
@@ -40,8 +42,10 @@ struct ListManagementView: View {
             .onDelete(perform: deleteItems)
         }
         .navigationBarBackButtonHidden(true)
+        .navigationTitle(Text(naviTitle))
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar(content: {
-            ToolbarItem(placement: .navigationBarLeading){ // left
+            ToolbarItem(placement: .navigationBarLeading){ // navigation left
                 Button(action: {
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
@@ -53,8 +57,19 @@ struct ListManagementView: View {
                     }
                 })
             }
+            ToolbarItemGroup(placement: .bottomBar) {
+                Button(action: {
+                    openBarCodeFlag.toggle()
+                }, label: {
+                    Image(systemName: "plus.circle.fill")
+                    Text("書籍を追加")
+                })
+                    Spacer()
+            }
         })
-        
+        .sheet(isPresented: $openBarCodeFlag) {
+            BarcodeScannerView()
+        }
         .gesture(
             DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
                 .onEnded({ value in // end time

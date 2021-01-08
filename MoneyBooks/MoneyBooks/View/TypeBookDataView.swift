@@ -7,26 +7,30 @@
 
 import SwiftUI
 
-class ManualInput : ObservableObject {
-    @Published var title: String = ""
-    @Published var author: String = ""
-    @Published var dateOfPurchase = Date()
-    @Published var stateOfControl = 1
-    @Published var regularPrice: String = ""
-    @Published var yourValue: String = ""
-    @Published var evaluation: String = ""
-    @Published var memo: String = ""
-    @Published var impressions: String = ""
-    @Published var favorite: Int = 1
-    @Published var unfavorite: Int = 4
+enum Signal: Int {
+    case one = 1
+    case yellow = 2
+    case red = 3
 }
 
 struct TypeBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @StateObject var manulInput = ManualInput()
     @State var setImage:UIImage?
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var displayStatus: DisplayStatus
+    
+    @Binding var title: String
+    @Binding var author: String
+    @Binding var dateOfPurchase: Date
+    @Binding var edit: Bool
+    @Binding var regularPrice: String
+    @Binding var yourValue: String
+    @Binding var memo: String
+    @Binding var impressions: String
+    @Binding var favorite: Int
+    @Binding var unfavorite: Int
+    
+    @State private var stateOfControl: Int = 1
     
     var body: some View {
         Form {
@@ -37,62 +41,70 @@ struct TypeBookDataView: View {
                         .frame(width: 200, height: 200, alignment: .center)
                     Spacer()
                 }
-                TextField("本のタイトルを入力してください", text: $manulInput.title)
-                TextField("作者を入力してください", text: $manulInput.author)
+                TextField("本のタイトルを入力してください", text: $title)
+                TextField("作者を入力してください", text: $author)
                 
-                TextField("定価を入力してください", text: $manulInput.regularPrice,
+                TextField("定価を入力してください", text: $regularPrice,
                           onEditingChanged: { begin in
-                            manulInput.regularPrice = checkerYen(begin: begin, typeMoney: manulInput.regularPrice)
+                            regularPrice = checkerYen(begin: begin, typeMoney: regularPrice)
                             
                           })
                     .keyboardType(.numbersAndPunctuation)
                 
-                DatePicker("購入日", selection: $manulInput.dateOfPurchase, displayedComponents: .date)
+                DatePicker("購入日", selection: $dateOfPurchase, displayedComponents: .date)
                 
-                Picker(selection: $manulInput.stateOfControl, label: Text("管理先を指定してください")) {
+                Picker(selection: $stateOfControl, label: Text("管理先を指定してください")) {
                     ForEach(0 ..< displayStatus.managementStatus.count) { num in
                         Text(self.displayStatus.managementStatus[num])
                     }
                 }
             }
             Section(header: Text("メモ")){
-                TextEditor(text: $manulInput.memo)
+                TextEditor(text: $memo)
             }
-            if(manulInput.stateOfControl == 0){
+            if(stateOfControl == 0){
                 Group {
                     Section(header: Text("感想")){
-                        TextEditor(text: $manulInput.impressions)
+                        TextEditor(text: $impressions)
                     }
                     Section(header: Text("あなたにとってこの本は？")){
                         HStack(spacing: 10) {
-                            ForEach(0..<manulInput.favorite, id:\.self){ yellow in
+                            ForEach(0..<favorite, id:\.self){ yellow in
                                 Image(systemName: "star.fill")
                                     .onTapGesture(perform: {
-                                        manulInput.favorite = yellow + 1
-                                        manulInput.unfavorite = 4 - yellow
+                                        favorite = yellow + 1
+                                        unfavorite = 4 - yellow
                                     })
                                     .foregroundColor(.yellow)
                                     .padding()
                             }
-                            ForEach(0..<manulInput.unfavorite, id: \.self){ gray in
+                            ForEach(0..<unfavorite, id: \.self){ gray in
                                 Image(systemName: "star.fill")
                                     .onTapGesture(perform: {
-                                        manulInput.favorite += (gray + 1)
-                                        manulInput.unfavorite -= (gray + 1)
+                                        favorite += (gray + 1)
+                                        unfavorite -= (gray + 1)
                                     })
                                     .padding()
                                     .foregroundColor(.gray)
                             }
                         }
-                        TextField("どれぐらいの価値ですか？", text: $manulInput.yourValue,
+                        TextField("どれぐらいの価値ですか？", text: $yourValue,
                                   onEditingChanged: { begin in
-                                    manulInput.yourValue = checkerYen(begin: begin, typeMoney: manulInput.yourValue)
+                                    yourValue = checkerYen(begin: begin, typeMoney: yourValue)
                                   })
                             .keyboardType(.numbersAndPunctuation)
                     }
                 }
             }
         }
+        .onAppear(perform: {
+            if(displayStatus.managementNumber > 2){
+                stateOfControl = 1
+                displayStatus.managementNumber = 1
+            }else{
+                stateOfControl = displayStatus.managementNumber
+            }
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(Text("手入力画面"))
         .toolbar(content: {
@@ -136,18 +148,18 @@ struct TypeBookDataView: View {
                 pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
             }
             newItem.img = pickedImage!
-            newItem.title = manulInput.title
-            newItem.author =  manulInput.author
-            newItem.regularPrice = dataSetMoney(setMoney: manulInput.regularPrice)
-            newItem.dateOfPurchase = manulInput.dateOfPurchase
-            newItem.stateOfControl = Int16(manulInput.stateOfControl)
-            newItem.memo = manulInput.memo
-            newItem.impressions =  manulInput.impressions
-            newItem.favorite = Int16(manulInput.favorite)
-            newItem.yourValue = dataSetMoney(setMoney: manulInput.yourValue)
+            newItem.title = title
+            newItem.author =  author
+            newItem.regularPrice = dataSetMoney(setMoney: regularPrice)
+            newItem.dateOfPurchase = dateOfPurchase
+            newItem.stateOfControl = Int16(stateOfControl)
+            newItem.memo = memo
+            newItem.impressions =  impressions
+            newItem.favorite = Int16(favorite)
+            newItem.yourValue = dataSetMoney(setMoney: yourValue)
             do {
                 try viewContext.save()
-                switch manulInput.stateOfControl {
+                switch stateOfControl {
                 case 0:
                     displayStatus.read += 1
                 case 1:
@@ -187,8 +199,8 @@ struct TypeBookDataView: View {
     }
 }
 
-struct TypeBookDataView_Previews: PreviewProvider {
-    static var previews: some View {
-        TypeBookDataView()
-    }
-}
+//struct TypeBookDataView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        TypeBookDataView()
+//    }
+//}

@@ -14,6 +14,8 @@ struct BarcodeScannerView: View {
     @State var scannedCode: String = "9784061538238"
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var displayStatus: DisplayStatus
+    @StateObject var manualInput = ManualInput()
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -28,6 +30,7 @@ struct BarcodeScannerView: View {
             .onAppear(perform: {
                 if(displayStatus.closedSearchView != false){
                     displayStatus.closedSearchView = false
+                    displayStatus.managementNumber = 0
                     self.presentationMode.wrappedValue.dismiss()
                 }
             })
@@ -43,9 +46,22 @@ struct BarcodeScannerView: View {
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                     NavigationLink(
-                        destination: TypeBookDataView(),
+                        destination: TypeBookDataView(title: $manualInput.title,
+                                                      author: $manualInput.author,
+                                                      dateOfPurchase: $manualInput.dateOfPurchase,
+                                                      edit: $loadingCompleted,
+                                                      regularPrice: $manualInput.regularPrice,
+                                                      yourValue: $manualInput.yourValue,
+                                                      memo: $manualInput.memo,
+                                                      impressions: $manualInput.impressions,
+                                                      favorite: $manualInput.favorite,
+                                                      unfavorite: $manualInput.unfavorite),
                         label: {
-                            Text("手入力画面")
+                            Button(action: {
+                                displayStatus.managementNumber = 3
+                            }, label: {
+                                Text("手入力画面")
+                            })
                         })
                 }
                 ToolbarItem(placement: .navigationBarLeading){
