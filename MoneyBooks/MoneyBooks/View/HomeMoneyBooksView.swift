@@ -15,6 +15,7 @@ class DisplayStatus : ObservableObject {
     @Published var want:Int = 0
     @Published var showBarCodeFlag:Bool = false
     @Published var closedSearchView:Bool = false
+    let managementStatus = ["読破", "積み本", "欲しい本"]
 }
 
 struct HomeMoneyBooksView: View {
@@ -24,6 +25,7 @@ struct HomeMoneyBooksView: View {
     var items: FetchedResults<Books>
 
     @EnvironmentObject var displayStatus: DisplayStatus
+    @State var countCheck:Bool = false
     
     var body: some View {
         NavigationView {
@@ -33,10 +35,10 @@ struct HomeMoneyBooksView: View {
                 }
                 Section(header: Text("マイリスト")){
                     NavigationLink(
-                        destination: ListManagementView(),
+                        destination: ListManagementView(numberOfBooks: $displayStatus.read),
                         label: {
                             HStack {
-                                Text("読破済み")
+                                Text(displayStatus.managementStatus[0])
                                 Spacer()
                                 Text("\(displayStatus.read)")
                             }.padding()
@@ -45,7 +47,7 @@ struct HomeMoneyBooksView: View {
                         destination: Text("積み本"),
                         label: {
                             HStack {
-                                Text("積み本")
+                                Text(displayStatus.managementStatus[1])
                                 Spacer()
                                 Text("\(displayStatus.buy)")
                             }.padding()
@@ -54,7 +56,7 @@ struct HomeMoneyBooksView: View {
                         destination: Text("欲しい本"),
                         label: {
                             HStack {
-                                Text("欲しい本")
+                                Text(displayStatus.managementStatus[2])
                                 Spacer()
                                 Text("\(displayStatus.want)")
                             }.padding()
@@ -73,26 +75,14 @@ struct HomeMoneyBooksView: View {
                 }
             })
             .sheet(isPresented: $displayStatus.showBarCodeFlag) {
-                BarcodeScannerView()
+                BarcodeScannerView(checker: $countCheck)
             }
+            .onChange(of: countCheck, perform: { value in
+                countUp()
+            })
         }
         .onAppear(perform: {
-            print(type(of: items))
-            items.forEach {
-                print(type(of:$0.yourValue),$0.stateOfControl)
-                switch($0.stateOfControl){
-                case 1:
-                    displayStatus.read += Int($0.stateOfControl)
-                case 2:
-                    displayStatus.buy += Int($0.stateOfControl)
-                case 3:
-                    displayStatus.want += Int($0.stateOfControl)
-                default:
-                    print("error")
-                }
-                displayStatus.regular += Int($0.regularPrice)
-                displayStatus.your += Int($0.yourValue)
-            }
+            countUp()
         })
     }
     
@@ -108,6 +98,28 @@ struct HomeMoneyBooksView: View {
                 Spacer()
                 Text("\(displayStatus.your)"+"円")
             }.padding()
+        }
+    }
+    
+    private func countUp() {
+        displayStatus.regular = 0
+        displayStatus.your = 0
+        displayStatus.read = 0
+        displayStatus.buy = 0
+        displayStatus.want = 0
+        items.forEach {
+            displayStatus.regular += Int($0.regularPrice)
+            displayStatus.your += Int($0.yourValue)
+            switch($0.stateOfControl){
+            case 1:
+                displayStatus.read += Int($0.stateOfControl)
+            case 2:
+                displayStatus.buy += Int($0.stateOfControl)
+            case 3:
+                displayStatus.want += Int($0.stateOfControl)
+            default:
+                print("error")
+            }
         }
     }
 }

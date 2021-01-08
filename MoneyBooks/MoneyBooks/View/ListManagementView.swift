@@ -14,9 +14,10 @@ struct ListManagementView: View {
     var items: FetchedResults<Books>
     @Environment(\.managedObjectContext) private var viewContext
     @State var image:Data = .init(count:0)
-    @StateObject var dislayStatus = DisplayStatus()
+    @EnvironmentObject var displayStatus: DisplayStatus
     
     @Environment(\.presentationMode) var presentationMode
+    @Binding var numberOfBooks:Int
     
     var body: some View {
         List{
@@ -53,6 +54,7 @@ struct ListManagementView: View {
                 })
             }
         })
+        
         .gesture(
             DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
                 .onEnded({ value in // end time
@@ -64,6 +66,7 @@ struct ListManagementView: View {
     }
     
     private func deleteItems(offsets: IndexSet) {
+        numberOfBooks -= 1
         withAnimation {
             offsets.map { items[$0] }.forEach(viewContext.delete)
             do {
@@ -76,8 +79,8 @@ struct ListManagementView: View {
     }
 }
 
-struct ListManagementView_Previews: PreviewProvider {
-    static var previews: some View {
-        ListManagementView()
-    }
-}
+//struct ListManagementView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ListManagementView(status: sce, count: .constant(true))
+//    }
+//}

@@ -6,13 +6,13 @@
 //
 
 import SwiftUI
-import SDWebImageSwiftUI // ネット上の画像を取得
+import SDWebImageSwiftUI
 import Foundation
 
 
 struct ResultSearchBookView: View {
     @StateObject var Books = GoogleBooksAPIViewModel()
-    @State var show = false
+    @State var typeFlag = false
     @Binding var request:String
     @EnvironmentObject var dislayStatus: DisplayStatus
     @Environment(\.presentationMode) var presentationMode
@@ -20,10 +20,8 @@ struct ResultSearchBookView: View {
     var body : some View{
         NavigationLink(
             destination: TypeBookDataView(),
-            isActive: $show,
-            label: {
-                //
-            })
+            isActive: $typeFlag,
+            label: {})
         List(Books.data){i in
             HStack{
                 if i.imgUrl != ""{
@@ -42,9 +40,10 @@ struct ResultSearchBookView: View {
             .onTapGesture {
                 if(i.title != "データを手入力"){
                     print("CoreDataに登録")
+                    dislayStatus.closedSearchView = true
                 }else{
                     print("手入力画面に遷移")
-                    show = true
+                    typeFlag = true
                 }
             }
         }

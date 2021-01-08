@@ -12,7 +12,6 @@ class ManualInput : ObservableObject {
     @Published var author: String = ""
     @Published var dateOfPurchase = Date()
     @Published var stateOfControl = 1
-    let managementStatus = ["読破", "積み本", "欲しい本"]
     @Published var regularPrice: String = ""
     @Published var yourValue: String = ""
     @Published var evaluation: String = ""
@@ -52,14 +51,11 @@ struct TypeBookDataView: View {
                 DatePicker("購入日", selection: $manulInput.dateOfPurchase, displayedComponents: .date)
                 
                 Picker(selection: $manulInput.stateOfControl, label: Text("管理先を指定してください")) {
-                    ForEach(0 ..< manulInput.managementStatus.count) { num in
-                        Text(self.manulInput.managementStatus[num])
+                    ForEach(0 ..< displayStatus.managementStatus.count) { num in
+                        Text(self.displayStatus.managementStatus[num])
                     }
                 }
-            }.onAppear(perform: {
-                print(manulInput.managementStatus[manulInput.stateOfControl])
-                print(manulInput.stateOfControl)
-            })
+            }
             Section(header: Text("メモ")){
                 TextEditor(text: $manulInput.memo)
             }
@@ -75,7 +71,6 @@ struct TypeBookDataView: View {
                                     .onTapGesture(perform: {
                                         manulInput.favorite = yellow + 1
                                         manulInput.unfavorite = 4 - yellow
-                                        print("yellow",yellow,manulInput.favorite, manulInput.unfavorite)
                                     })
                                     .foregroundColor(.yellow)
                                     .padding()
@@ -83,10 +78,8 @@ struct TypeBookDataView: View {
                             ForEach(0..<manulInput.unfavorite, id: \.self){ gray in
                                 Image(systemName: "star.fill")
                                     .onTapGesture(perform: {
-                                        print("grayBefore",gray,manulInput.favorite, manulInput.unfavorite)
                                         manulInput.favorite += (gray + 1)
                                         manulInput.unfavorite -= (gray + 1)
-                                        print("grayAfter",gray,manulInput.favorite, manulInput.unfavorite)
                                     })
                                     .padding()
                                     .foregroundColor(.gray)
@@ -108,9 +101,7 @@ struct TypeBookDataView: View {
                 Button(action: {
                     addItem()
                     displayStatus.closedSearchView = true
-                    print("1",displayStatus.closedSearchView )
                     self.presentationMode.wrappedValue.dismiss()
-                    print("2",displayStatus.closedSearchView )
                 }, label: {
                     Text("追加")
                 })
