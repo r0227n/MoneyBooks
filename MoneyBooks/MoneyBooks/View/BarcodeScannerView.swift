@@ -8,14 +8,12 @@
 import SwiftUI
 
 struct BarcodeScannerView: View {
-    //@StateObject var viewModel = BarcodeScannerViewModel()
     @StateObject var requestViewModel = GoogleBooksAPIViewModel()
     @State var isbn:String?
     @State var loadingCompleted = false
     @State var scannedCode: String = "9784061538238"
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var displayStatus: DisplayStatus
-    @Binding var checker:Bool
     var body: some View {
         NavigationView {
             VStack {
@@ -30,7 +28,6 @@ struct BarcodeScannerView: View {
             .onAppear(perform: {
                 if(displayStatus.closedSearchView != false){
                     displayStatus.closedSearchView = false
-                    checker.toggle()
                     self.presentationMode.wrappedValue.dismiss()
                 }
             })

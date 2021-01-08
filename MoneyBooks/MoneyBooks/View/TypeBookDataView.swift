@@ -27,7 +27,6 @@ struct TypeBookDataView: View {
     @State var setImage:UIImage?
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var displayStatus: DisplayStatus
-
     
     var body: some View {
         Form {
@@ -100,7 +99,6 @@ struct TypeBookDataView: View {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
                     addItem()
-                    displayStatus.closedSearchView = true
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("追加")
@@ -149,6 +147,17 @@ struct TypeBookDataView: View {
             newItem.yourValue = dataSetMoney(setMoney: manulInput.yourValue)
             do {
                 try viewContext.save()
+                switch manulInput.stateOfControl {
+                case 0:
+                    displayStatus.read += 1
+                case 1:
+                    displayStatus.buy += 1
+                case 2:
+                    displayStatus.want += 1
+                default:
+                    break
+                }
+                displayStatus.closedSearchView = true
             } catch {
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")

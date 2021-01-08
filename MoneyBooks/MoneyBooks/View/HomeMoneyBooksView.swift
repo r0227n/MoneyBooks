@@ -25,7 +25,6 @@ struct HomeMoneyBooksView: View {
     var items: FetchedResults<Books>
 
     @EnvironmentObject var displayStatus: DisplayStatus
-    @State var countCheck:Bool = false
     
     var body: some View {
         NavigationView {
@@ -75,11 +74,8 @@ struct HomeMoneyBooksView: View {
                 }
             })
             .sheet(isPresented: $displayStatus.showBarCodeFlag) {
-                BarcodeScannerView(checker: $countCheck)
+                BarcodeScannerView()
             }
-            .onChange(of: countCheck, perform: { value in
-                countUp()
-            })
         }
         .onAppear(perform: {
             countUp()
@@ -102,11 +98,6 @@ struct HomeMoneyBooksView: View {
     }
     
     private func countUp() {
-        displayStatus.regular = 0
-        displayStatus.your = 0
-        displayStatus.read = 0
-        displayStatus.buy = 0
-        displayStatus.want = 0
         items.forEach {
             displayStatus.regular += Int($0.regularPrice)
             displayStatus.your += Int($0.yourValue)
