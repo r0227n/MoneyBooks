@@ -97,14 +97,6 @@ struct TypeBookDataView: View {
                 }
             }
         }
-        .onAppear(perform: {
-            if(displayStatus.managementNumber > 2){
-                stateOfControl = 1
-                displayStatus.managementNumber = 1
-            }else{
-                stateOfControl = displayStatus.managementNumber
-            }
-        })
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(Text("手入力画面"))
         .toolbar(content: {
@@ -137,6 +129,14 @@ struct TypeBookDataView: View {
                     }
                 })
         )
+        .onAppear(perform: {
+            if(displayStatus.managementNumber > 2){
+                stateOfControl = 1
+                displayStatus.managementNumber = 1
+            }else{
+                stateOfControl = displayStatus.managementNumber
+            }
+        })
     }
     
     private func addItem() {

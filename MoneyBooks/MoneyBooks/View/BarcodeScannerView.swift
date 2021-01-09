@@ -30,7 +30,7 @@ struct BarcodeScannerView: View {
             .onAppear(perform: {
                 if(displayStatus.closedSearchView != false){
                     displayStatus.closedSearchView = false
-                    displayStatus.managementNumber = 0
+                    displayStatus.managementNumber = 1
                     self.presentationMode.wrappedValue.dismiss()
                 }
             })

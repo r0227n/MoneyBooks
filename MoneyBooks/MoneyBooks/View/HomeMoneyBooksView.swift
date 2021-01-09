@@ -14,7 +14,8 @@ class DisplayStatus : ObservableObject {
     @Published var buy:Int = 0
     @Published var want:Int = 0
     @Published var closedSearchView:Bool = false
-    @Published var managementNumber:Int = 0
+    @Published var openSearchView:Bool = false
+    @Published var managementNumber:Int = 1
     var managementStatus = ["読破", "積み本", "欲しい本"]
 }
 
@@ -27,61 +28,61 @@ struct HomeMoneyBooksView: View {
     @EnvironmentObject var displayStatus: DisplayStatus
     
     @State var showBarCodeFlag:Bool = false
+    @State var openListFlag:Bool = false
+    @State private var changeNumber:Int = 0
+    
+    @Binding var test:Bool
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("合計金額")){
-                    totalPriceView
-                }
-                Section(header: Text("マイリスト")){
-                    NavigationLink(
-                        destination: ListManagementView(numberOfBooks: $displayStatus.read,
-                                                        naviTitle: $displayStatus.managementStatus[displayStatus.managementNumber]),
-                        label: {
-                            Button(action: {
-                                    displayStatus.managementNumber = 0
-                            },label:{
-                                HStack {
-                                    Text(displayStatus.managementStatus[0])
-                                    Spacer()
-                                    Text("\(displayStatus.read)")
-                                }.padding()
-                            })
+            VStack{
+                NavigationLink(destination: ListManagementView(numberOfBooks: $changeNumber,
+                                                                   naviTitle: $displayStatus.managementStatus[changeNumber],
+                                                                   read:$displayStatus.read,
+                                                                   buy: $displayStatus.buy,
+                                                                   want: $displayStatus.want),
+                                   isActive: $openListFlag,
+                                   label: {})
+                Form {
+                    Section(header: Text("合計金額")){
+                        totalPriceView
+                    }
+                    Section(header: Text("マイリスト")){
+                        Button(action: {
+                            displayStatus.managementNumber = 0
+                            changeNumber = 0
+                            openListFlag.toggle()
+                        },label:{
+                            HStack {
+                                Text(displayStatus.managementStatus[0])
+                                Spacer()
+                                Text("\(displayStatus.read)")
+                            }.padding()
                         })
-                    NavigationLink(
-                        destination: Text("積み本"),
-                        label: {
+                        Button(action: {
+                            displayStatus.managementNumber = 1
+                            changeNumber = 1
+                            openListFlag.toggle()
+                        }, label: {
                             HStack {
                                 Text(displayStatus.managementStatus[1])
                                 Spacer()
                                 Text("\(displayStatus.buy)")
                             }.padding()
                         })
-                    NavigationLink(
-                        destination: Text("欲しい本"),
-                        label: {
+                        Button(action: {
+                            displayStatus.managementNumber = 2
+                            changeNumber = 2
+                            openListFlag.toggle()
+                        }, label: {
                             HStack {
                                 Text(displayStatus.managementStatus[2])
                                 Spacer()
                                 Text("\(displayStatus.want)")
                             }.padding()
                         })
+                    }
                 }
-            }
-            .toolbar(content: {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    Button(action: {
-                        showBarCodeFlag.toggle()
-                    }, label: {
-                        Image(systemName: "plus.circle.fill")
-                        Text("書籍を追加")
-                    })
-                        Spacer()
-                }
-            })
-            .sheet(isPresented: $showBarCodeFlag) {
-                BarcodeScannerView()
             }
         }
         .onAppear(perform: {
@@ -100,6 +101,9 @@ struct HomeMoneyBooksView: View {
                 }
             }
         })
+        .sheet(isPresented: $test) {
+            BarcodeScannerView()
+        }
     }
     
     var totalPriceView: some View {
@@ -117,9 +121,9 @@ struct HomeMoneyBooksView: View {
         }
     }
 }
-
-struct HomeMoneyBooksView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeMoneyBooksView()
-    }
-}
+//
+//struct HomeMoneyBooksView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        HomeMoneyBooksView()
+//    }
+//}

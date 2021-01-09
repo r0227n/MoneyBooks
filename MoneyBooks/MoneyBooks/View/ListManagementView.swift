@@ -13,30 +13,34 @@ struct ListManagementView: View {
         animation: .default)
     var items: FetchedResults<Books>
     @Environment(\.managedObjectContext) private var viewContext
-    @State var image:Data = .init(count:0)
-    @EnvironmentObject var displayStatus: DisplayStatus
+    @State private var image:Data = .init(count:0)
     
     @Environment(\.presentationMode) var presentationMode
     @Binding var numberOfBooks:Int
     @Binding var naviTitle:String
-    @State private var openBarCodeFlag:Bool = false
+    @Binding var read:Int
+    @Binding var buy:Int
+    @Binding var want:Int
     
     var body: some View {
-        List{
+        List(){
             ForEach(items) { item in
-                HStack {
-                    Image(uiImage: UIImage(data: item.img ?? self.image)!)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50, height:50)
-                        .padding(20)
-                    VStack {
-                        Text(item.title!)
-                        Text(item.author!)
+                if(item.stateOfControl == numberOfBooks){
+                    HStack {
+                        Image(uiImage: UIImage(data: item.img ?? self.image)!)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height:50)
+                            .padding(20)
+                        VStack {
+                            Text(item.title!)
+                            Text(item.author!)
+                            Text("\(item.stateOfControl)")
+                        }
                     }
-                }
-                .onTapGesture {
-                    print(item.title!)
+                    .onTapGesture {
+                        print(item.title!)
+                    }
                 }
             }
             .onDelete(perform: deleteItems)
@@ -57,23 +61,11 @@ struct ListManagementView: View {
                     }
                 })
             }
-            ToolbarItemGroup(placement: .bottomBar) {
-                Button(action: {
-                    openBarCodeFlag.toggle()
-                }, label: {
-                    Image(systemName: "plus.circle.fill")
-                    Text("書籍を追加")
-                })
-                    Spacer()
-            }
         })
-        .sheet(isPresented: $openBarCodeFlag) {
-            BarcodeScannerView()
-        }
         .gesture(
             DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
-                .onEnded({ value in // end time
-                    if value.startLocation.x < CGFloat(100.0){  // スワイプの開始地点が左端
+                .onEnded({ swipe in // end time
+                    if swipe.startLocation.x < CGFloat(100.0){  // スワイプの開始地点が左端
                         self.presentationMode.wrappedValue.dismiss()
                     }
                 })
@@ -81,7 +73,16 @@ struct ListManagementView: View {
     }
     
     private func deleteItems(offsets: IndexSet) {
-        numberOfBooks -= 1
+        switch numberOfBooks {
+        case 0:
+            read -= 1
+        case 1:
+            buy -= 1
+        case 2:
+            want -= 1
+        default:
+            break
+        }
         withAnimation {
             offsets.map { items[$0] }.forEach(viewContext.delete)
             do {
@@ -93,9 +94,3 @@ struct ListManagementView: View {
         }
     }
 }
-
-//struct ListManagementView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ListManagementView(status: sce, count: .constant(true))
-//    }
-//}
