@@ -21,31 +21,21 @@ class ManualInput : ObservableObject {
     @Published var impressions: String = ""
     @Published var favorite: Int = 1
     @Published var unfavorite: Int = 4
+    
+    var managementStatus = ["読破", "積み本", "欲しい本"]
 }
 
 
 struct ResultSearchBookView: View {
     @StateObject var Books = GoogleBooksAPIViewModel()
-    @State var typeFlag = false
+    
     @Binding var request:String
-    @EnvironmentObject var dislayStatus: DisplayStatus
     @Environment(\.presentationMode) var presentationMode
     @StateObject var manualInput = ManualInput()
+    @Binding var toStart:Int
+    @Binding var typeFlag:Bool
     
     var body : some View{
-        NavigationLink(
-            destination: TypeBookDataView(title: $manualInput.title,
-                                          author: $manualInput.author,
-                                          dateOfPurchase: $manualInput.dateOfPurchase,
-                                          edit: $typeFlag,
-                                          regularPrice: $manualInput.regularPrice,
-                                          yourValue: $manualInput.yourValue,
-                                          memo: $manualInput.memo,
-                                          impressions: $manualInput.impressions,
-                                          favorite: $manualInput.favorite,
-                                          unfavorite: $manualInput.unfavorite),
-            isActive: $typeFlag,
-            label: {})
         List(Books.data){i in
             HStack{
                 if i.imgUrl != ""{
@@ -64,26 +54,27 @@ struct ResultSearchBookView: View {
             .onTapGesture {
                 if(i.title != "データを手入力"){
                     print("CoreDataに登録")
-                    dislayStatus.closedSearchView = true
+                    //dislayStatus.closedSearchView = true
                 }else{
                     print("手入力画面に遷移")
-                    typeFlag = true
+                    typeFlag.toggle()
                 }
             }
         }
         .onAppear(perform: {
             print("SearchNow", request)
+            print("asdf",typeFlag)
             Books.getData(request: request)
-            if(dislayStatus.closedSearchView != false){
-                self.presentationMode.wrappedValue.dismiss()
-            }
+        })
+        .onDisappear(perform: {
+            print(typeFlag)
         })
         
         .navigationTitle("検索結果")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar(content: {
-            ToolbarItem(placement: .navigationBarLeading){
+            ToolbarItem(placement: .cancellationAction){
                 Button(action: {
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {

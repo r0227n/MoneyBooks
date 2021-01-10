@@ -6,31 +6,31 @@
 //
 
 import SwiftUI
-
-enum Signal: Int {
-    case one = 1
-    case yellow = 2
-    case red = 3
-}
+import CoreData
 
 struct TypeBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State var setImage:UIImage?
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var displayStatus: DisplayStatus
     
     @Binding var title: String
     @Binding var author: String
-    @Binding var dateOfPurchase: Date
-    @Binding var edit: Bool
     @Binding var regularPrice: String
+    @Binding var dateOfPurchase: Date
+    @Binding var stateOfControl:Int
     @Binding var yourValue: String
     @Binding var memo: String
     @Binding var impressions: String
     @Binding var favorite: Int
     @Binding var unfavorite: Int
     
-    @State private var stateOfControl: Int = 1
+    @FetchRequest(
+        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
+        animation: .default)
+    var items: FetchedResults<Books>
+    
+    @State private var setUpVariable:Bool = false
+    @StateObject var manualInput = ManualInput()
     
     var body: some View {
         Form {
@@ -46,7 +46,7 @@ struct TypeBookDataView: View {
                 
                 TextField("定価を入力してください", text: $regularPrice,
                           onEditingChanged: { begin in
-                            regularPrice = checkerYen(begin: begin, typeMoney: regularPrice)
+                            regularPrice = checkerYen(typeMoney: regularPrice)
                             
                           })
                     .keyboardType(.numbersAndPunctuation)
@@ -54,14 +54,15 @@ struct TypeBookDataView: View {
                 DatePicker("購入日", selection: $dateOfPurchase, displayedComponents: .date)
                 
                 Picker(selection: $stateOfControl, label: Text("管理先を指定してください")) {
-                    ForEach(0 ..< displayStatus.managementStatus.count) { num in
-                        Text(self.displayStatus.managementStatus[num])
+                    ForEach(0 ..< manualInput.managementStatus.count) { num in
+                        Text(manualInput.managementStatus[num])
                     }
                 }
             }
             Section(header: Text("メモ")){
                 TextEditor(text: $memo)
             }
+ 
             if(stateOfControl == 0){
                 Group {
                     Section(header: Text("感想")){
@@ -90,7 +91,7 @@ struct TypeBookDataView: View {
                         }
                         TextField("どれぐらいの価値ですか？", text: $yourValue,
                                   onEditingChanged: { begin in
-                                    yourValue = checkerYen(begin: begin, typeMoney: yourValue)
+                                    yourValue = checkerYen(typeMoney: yourValue)
                                   })
                             .keyboardType(.numbersAndPunctuation)
                     }
@@ -98,7 +99,6 @@ struct TypeBookDataView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(Text("手入力画面"))
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
@@ -108,7 +108,7 @@ struct TypeBookDataView: View {
                     Text("追加")
                 })
             }
-            ToolbarItem(placement: .navigationBarLeading){
+            ToolbarItem(placement: .cancellationAction){
                 Button(action: {
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
@@ -129,21 +129,17 @@ struct TypeBookDataView: View {
                     }
                 })
         )
-        .onAppear(perform: {
-            if(displayStatus.managementNumber > 2){
-                stateOfControl = 1
-                displayStatus.managementNumber = 1
-            }else{
-                stateOfControl = displayStatus.managementNumber
-            }
-        })
+    }
+    
+    private func replaceVariable(title:String, author:String, regularPrice:String, dateOfPurchase:Date, stateOfControl:Int ,yourValue:String, memo:String, impressions:String, favorite:Int) -> (String,String,String,Date,Int,String,String,String,Int,Int){
+        return(title, author, regularPrice, dateOfPurchase, stateOfControl, yourValue, memo, impressions, favorite, (5-favorite))
     }
     
     private func addItem() {
         withAnimation {
             let newItem = MoneyBooks.Books(context: viewContext)
             var pickedImage = setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
-            
+
             if pickedImage == nil { // 画像が選択されていない場合
                 pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
             }
@@ -159,34 +155,23 @@ struct TypeBookDataView: View {
             newItem.yourValue = dataSetMoney(setMoney: yourValue)
             do {
                 try viewContext.save()
-                switch stateOfControl {
-                case 0:
-                    displayStatus.read += 1
-                case 1:
-                    displayStatus.buy += 1
-                case 2:
-                    displayStatus.want += 1
-                default:
-                    break
-                }
-                displayStatus.closedSearchView = true
             } catch {
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
+
     
-    func checkerYen(begin:Bool, typeMoney:String) -> String {
+    func checkerYen(typeMoney:String) -> String {
         var indexOfYen = typeMoney
-        if(begin && (indexOfYen.contains("円"))) {
+        if(indexOfYen.contains("円")) {
             indexOfYen = String(indexOfYen.dropLast(1))
         } else if(indexOfYen.count > 0){
             indexOfYen += "円"
         }
         return indexOfYen
     }
-    
     
     func dataSetMoney(setMoney: String) -> Int16 {
         var recordOfMoney = setMoney
@@ -198,9 +183,3 @@ struct TypeBookDataView: View {
         }
     }
 }
-
-//struct TypeBookDataView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        TypeBookDataView()
-//    }
-//}

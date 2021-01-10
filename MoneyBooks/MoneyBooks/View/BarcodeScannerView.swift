@@ -13,8 +13,11 @@ struct BarcodeScannerView: View {
     @State var loadingCompleted = false
     @State var scannedCode: String = "9784061538238"
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var displayStatus: DisplayStatus
     @StateObject var manualInput = ManualInput()
+    @State var argTitle: String = "手入力画面"
+    @State var addTypBookDataView:Bool = false
+    @Binding var toStart:Int
+    @Binding var collectionCountUp: [Int]
     
     var body: some View {
         NavigationView {
@@ -23,22 +26,21 @@ struct BarcodeScannerView: View {
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
                 NavigationLink(
-                    destination: ResultSearchBookView(request: $scannedCode),
+                    destination: ResultSearchBookView(request: $scannedCode, toStart: $toStart, typeFlag: $addTypBookDataView),
                     isActive: $loadingCompleted,
                     label: { })
             }
-            .onAppear(perform: {
-                if(displayStatus.closedSearchView != false){
-                    displayStatus.closedSearchView = false
-                    displayStatus.managementNumber = 1
-                    self.presentationMode.wrappedValue.dismiss()
-                }
-            })
             .onChange(of: scannedCode, perform: { value in
                 if(scannedCode.prefix(3) == "978"){  // BarCodeの上の段
                     loadingCompleted = true
                 }else if(scannedCode.prefix(3) == "192"){  // BarCodeの下の段
                     // 値段の部分を引き抜く
+                }
+            })
+            .onAppear(perform: {
+                if(addTypBookDataView != false){
+                    collectionCountUp[toStart] += 1
+                    self.presentationMode.wrappedValue.dismiss()
                 }
             })
             .navigationTitle("新規追加")
@@ -48,25 +50,21 @@ struct BarcodeScannerView: View {
                     NavigationLink(
                         destination: TypeBookDataView(title: $manualInput.title,
                                                       author: $manualInput.author,
-                                                      dateOfPurchase: $manualInput.dateOfPurchase,
-                                                      edit: $loadingCompleted,
                                                       regularPrice: $manualInput.regularPrice,
+                                                      dateOfPurchase: $manualInput.dateOfPurchase,
+                                                      stateOfControl: $toStart,
                                                       yourValue: $manualInput.yourValue,
                                                       memo: $manualInput.memo,
                                                       impressions: $manualInput.impressions,
                                                       favorite: $manualInput.favorite,
                                                       unfavorite: $manualInput.unfavorite),
+                        isActive: $addTypBookDataView,
                         label: {
-                            Button(action: {
-                                displayStatus.managementNumber = 3
-                            }, label: {
-                                Text("手入力画面")
-                            })
+                            Text(argTitle)
                         })
                 }
-                ToolbarItem(placement: .navigationBarLeading){
+                ToolbarItem(placement: .cancellationAction){
                     Button(action: {
-                        displayStatus.closedSearchView = false
                         self.presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("キャンセル")
@@ -76,9 +74,3 @@ struct BarcodeScannerView: View {
         }
     }
 }
-
-//struct BarcodeScannerView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        BarcodeScannerView(addCount: <#Binding<Int>#>)
-//    }
-//}

@@ -105,7 +105,6 @@
 				2A663AC725834F5800EBBCEF /* ViewModel */,
 				2A663AC625834E9900EBBCEF /* View */,
 				2A4E8F8A25834B4A00C0C24D /* MoneyBooksApp.swift */,
-				2A4E8F8C25834B4A00C0C24D /* ContentView.swift */,
 				2A4E8F8E25834B4A00C0C24D /* Assets.xcassets */,
 				2A4E8F9325834B4A00C0C24D /* Persistence.swift */,
 				2A4E8F9825834B4A00C0C24D /* Info.plist */,
@@ -133,6 +132,7 @@
 				2A33B41F25A49AA6001DE5CD /* TypeBookDataView.swift */,
 				2A244ACF2583662A0074F2F1 /* UIKitComponents */,
 				2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */,
+				2A4E8F8C25834B4A00C0C24D /* ContentView.swift */,
 				2ACD014A25A361B60006C19A /* ListManagementView.swift */,
 			);
 			path = View;

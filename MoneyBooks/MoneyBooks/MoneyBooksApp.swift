@@ -10,22 +10,24 @@ import SwiftUI
 @main
 struct MoneyBooksApp: App {
     let persistenceController = PersistenceController.shared
-    @State var flag:Bool = false
+    @State var showScanner:Bool = false
+    @State var bottomItem:Bool = false
     
     var body: some Scene {
         WindowGroup {
-            HomeMoneyBooksView(test: $flag)
+            HomeMoneyBooksView(viaBottomBar: $bottomItem, openBarcodeScannerView: $showScanner)
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                .environmentObject(DisplayStatus())
                 .toolbar(content: {
                     ToolbarItemGroup(placement: .bottomBar) {
-                        Button(action: {
-                            flag.toggle()
-                        }, label: {
-                            Image(systemName: "plus.circle.fill")
-                            Text("書籍を追加")
-                        })
+                        if(bottomItem != true){
+                            Button(action: {
+                                showScanner.toggle()
+                            }, label: {
+                                Image(systemName: "plus.circle.fill")
+                                Text("書籍を追加")
+                            })
                             Spacer()
+                        }
                     }
                 })
         }

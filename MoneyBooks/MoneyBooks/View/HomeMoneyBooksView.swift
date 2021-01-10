@@ -7,16 +7,10 @@
 
 import SwiftUI
 
-class DisplayStatus : ObservableObject {
+class ManagementInformation : ObservableObject {
     @Published var regular:Int = 0
     @Published var your:Int = 0
-    @Published var read:Int = 0
-    @Published var buy:Int = 0
-    @Published var want:Int = 0
-    @Published var closedSearchView:Bool = false
-    @Published var openSearchView:Bool = false
-    @Published var managementNumber:Int = 1
-    var managementStatus = ["読破", "積み本", "欲しい本"]
+    @Published var categoryNumber = [0,0,0]
 }
 
 struct HomeMoneyBooksView: View {
@@ -25,105 +19,76 @@ struct HomeMoneyBooksView: View {
         animation: .default)
     var items: FetchedResults<Books>
 
-    @EnvironmentObject var displayStatus: DisplayStatus
+    @StateObject var managementInformation = ManagementInformation()
+    @StateObject var manualInput = ManualInput()
+    @Binding var viaBottomBar:Bool
+    @Binding var openBarcodeScannerView:Bool
+    @State var managementNumber:Int = 1
+    @State var openManagmentList:Bool = false
     
-    @State var showBarCodeFlag:Bool = false
-    @State var openListFlag:Bool = false
-    @State private var changeNumber:Int = 0
-    
-    @Binding var test:Bool
-    
+
+ 
     var body: some View {
         NavigationView {
             VStack{
-                NavigationLink(destination: ListManagementView(numberOfBooks: $changeNumber,
-                                                                   naviTitle: $displayStatus.managementStatus[changeNumber],
-                                                                   read:$displayStatus.read,
-                                                                   buy: $displayStatus.buy,
-                                                                   want: $displayStatus.want),
-                                   isActive: $openListFlag,
-                                   label: {})
-                Form {
-                    Section(header: Text("合計金額")){
-                        totalPriceView
-                    }
-                    Section(header: Text("マイリスト")){
-                        Button(action: {
-                            displayStatus.managementNumber = 0
-                            changeNumber = 0
-                            openListFlag.toggle()
-                        },label:{
-                            HStack {
-                                Text(displayStatus.managementStatus[0])
-                                Spacer()
-                                Text("\(displayStatus.read)")
-                            }.padding()
-                        })
-                        Button(action: {
-                            displayStatus.managementNumber = 1
-                            changeNumber = 1
-                            openListFlag.toggle()
-                        }, label: {
-                            HStack {
-                                Text(displayStatus.managementStatus[1])
-                                Spacer()
-                                Text("\(displayStatus.buy)")
-                            }.padding()
-                        })
-                        Button(action: {
-                            displayStatus.managementNumber = 2
-                            changeNumber = 2
-                            openListFlag.toggle()
-                        }, label: {
-                            HStack {
-                                Text(displayStatus.managementStatus[2])
-                                Spacer()
-                                Text("\(displayStatus.want)")
-                            }.padding()
-                        })
-                    }
-                }
+                NavigationLink(destination: ListManagementView(numberOfBooks: $managementNumber,
+                                                               listViewTitle: $manualInput.managementStatus[managementNumber],
+                                                               openBarcodeView: $openBarcodeScannerView,
+                                                               bottomBarHidden: $viaBottomBar, collectionCountDown: $managementInformation.categoryNumber),
+                               isActive: $openManagmentList, label: {})
+                
+                myList
             }
         }
-        .onAppear(perform: {
+        .onAppear(perform: { //起動時、カテゴリー別の管理数をカウントする
             items.forEach {
-                displayStatus.regular += Int($0.regularPrice)
-                displayStatus.your += Int($0.yourValue)
-                switch($0.stateOfControl){
-                case 0:
-                    displayStatus.read += 1
-                case 1:
-                    displayStatus.buy += 1
-                case 2:
-                    displayStatus.want += 1
-                default:
-                    print("error")
-                }
+                managementInformation.regular += Int($0.regularPrice)
+                managementInformation.your += Int($0.yourValue)
+                managementInformation.categoryNumber[Int($0.stateOfControl)] += 1
             }
         })
-        .sheet(isPresented: $test) {
-            BarcodeScannerView()
+        
+        .sheet(isPresented: $openBarcodeScannerView) {
+            BarcodeScannerView(toStart: $managementNumber, collectionCountUp: $managementInformation.categoryNumber)
         }
     }
     
+    
+    var myList: some View {
+        Form {
+            Section(header: Text("合計金額")){
+                totalPriceView
+            }
+            Section(header: Text("マイリスト")){
+                ForEach(0..<3) { num in
+                    Button(action: {
+                        managementNumber = num
+                        openManagmentList.toggle()
+                    },label:{
+                        HStack {
+                            Text(manualInput.managementStatus[num])
+                            Spacer()
+                            Text("\(managementInformation.categoryNumber[num])")
+                        }
+                        .padding()
+                    })
+                }
+            }
+        }
+    }
+        
     var totalPriceView: some View {
         Group{
             HStack {
                 Text("定価の合計金額")
                 Spacer()
-                Text("\(displayStatus.regular)"+"円")
+                Text("\(managementInformation.regular)"+"円")
             }.padding()
             HStack {
                 Text("価値観の合計金額")
                 Spacer()
-                Text("\(displayStatus.your)"+"円")
+                Text("\(managementInformation.your)"+"円")
             }.padding()
         }
     }
 }
-//
-//struct HomeMoneyBooksView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        HomeMoneyBooksView()
-//    }
-//}
