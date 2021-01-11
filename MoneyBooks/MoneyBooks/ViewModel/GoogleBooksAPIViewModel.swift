@@ -24,7 +24,7 @@ final class GoogleBooksAPIViewModel : ObservableObject {
 //            let items = json["items"].array!
             guard let items = json["items"].array else {
                 print("error")
-                self.setUpManualInput()
+                //self.setUpManualInput()
                 return
             }
             for i in items{
@@ -56,7 +56,7 @@ final class GoogleBooksAPIViewModel : ObservableObject {
                     self.data.append(Book(id: id, title: title, authors: author, desc: description, imgUrl: imurl, url: url1))
                 }
             }
-            self.setUpManualInput()
+            //self.setUpManualInput()
         }.resume()
     }
     

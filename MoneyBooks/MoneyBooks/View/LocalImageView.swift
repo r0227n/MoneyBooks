@@ -10,11 +10,12 @@ import SwiftUI
 struct LocalImageView: View {
     @State private var image: Image = Image("sea")
     @State private var showingImagePicker = false
-    @State private var inputImage: UIImage?
+    @Binding var inputImage: UIImage?
     
-    var body: some View {
+    var body: some View {  
         Button(action: {
             print("Tapped")
+            print(type(of: image))
             self.showingImagePicker = true
         }) {
             image
@@ -32,11 +33,11 @@ struct LocalImageView: View {
     }
 }
 
-struct LocalImageView_Previews: PreviewProvider {
-    static var previews: some View {
-        LocalImageView()
-    }
-}
+//struct LocalImageView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        LocalImageView()
+//    }
+//}
 
 
 struct ImagePicker: UIViewControllerRepresentable {

@@ -81,7 +81,6 @@ final class ScannerViewController : UIViewController {
             //scannerDelegate?.didSurface(error: .InvalidDeviceInput)
             return
         }
-        print(captureSession)
         
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         previewLayer!.videoGravity = .resizeAspectFill
