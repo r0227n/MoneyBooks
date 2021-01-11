@@ -23,12 +23,14 @@ struct ListManagementView: View {
     @Binding var bottomBarHidden:Bool
     @Binding var collectionCountDown: Bool
     @StateObject var manualInput = ManualInput()
+    @State var notImage:String = "" // 仕方なく
     
     @State var argListNaviTitle:String = "編集画面"
     
     var body: some View {
         NavigationLink(
-            destination: TypeBookDataView(changeNaviTitle: $argListNaviTitle,
+            destination: TypeBookDataView(webImg: $notImage,
+                                          changeNaviTitle: $argListNaviTitle,
                                           title: $manualInput.title,
                                           author: $manualInput.author,
                                           regularPrice: $manualInput.regularPrice,

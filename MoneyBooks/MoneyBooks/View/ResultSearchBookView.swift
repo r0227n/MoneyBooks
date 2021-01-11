@@ -28,17 +28,21 @@ class ManualInput : ObservableObject {
 
 struct ResultSearchBookView: View {
     @StateObject var Books = GoogleBooksAPIViewModel()
-    
+    @Environment(\.managedObjectContext) private var viewContext
     
     @Environment(\.presentationMode) var presentationMode
     @StateObject var manualInput = ManualInput()
+    @State var imgURL:String = ""
     @Binding var argResultNaviTitle:String
     @Binding var request:String
+    @Binding var price:String
+    @Binding var storage:Int
     
     @State var addTypeBookData:Bool = false
     var body : some View{
         NavigationLink(
-            destination: TypeBookDataView(changeNaviTitle: $argResultNaviTitle,
+            destination: TypeBookDataView(webImg: $imgURL,
+                                          changeNaviTitle: $argResultNaviTitle,
                                           title: $manualInput.title,
                                           author: $manualInput.author,
                                           regularPrice: $manualInput.regularPrice,
@@ -54,7 +58,10 @@ struct ResultSearchBookView: View {
         List(Books.data){i in
             HStack{
                 if i.imgUrl != ""{
-                  WebImage(url: URL(string: i.imgUrl)!).resizable().frame(width: 120, height: 170).cornerRadius(10)
+                  WebImage(url: URL(string: i.imgUrl)!)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 170).cornerRadius(10)
                 }
                 else{
                     Image(systemName: "nosign").resizable().frame(width: 120, height: 170).cornerRadius(10)
@@ -67,8 +74,20 @@ struct ResultSearchBookView: View {
                 }
             }
             .onTapGesture {
-                if(i.title != "データを手入力"){
-                    print("CoreDataに登録")
+                if(i.title.count > 0){
+                    print("CoreDataに登録",i.imgUrl,type(of: i.imgUrl))
+                    (manualInput.title, manualInput.author, manualInput.regularPrice, manualInput.dateOfPurchase,manualInput.stateOfControl,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite)
+                        = replaceVariable(title: i.title,
+                                          author: i.authors,
+                                          regularPrice: checkerYen(typeMoney: price),
+                                          dateOfPurchase: Date(),
+                                          stateOfControl: storage,
+                                          yourValue: "",
+                                          memo: "",
+                                          impressions: "",
+                                          favorite: 1)
+                    imgURL = i.imgUrl
+                    addTypeBookData.toggle()
                 }else{
                     print("手入力画面に遷移")
                 }
@@ -76,6 +95,7 @@ struct ResultSearchBookView: View {
         }
         .onAppear(perform: {
             print("SearchNow", request)
+            Books.data = .init() // 検索結果を初期化
             Books.getData(request: request)
             if(argResultNaviTitle.count < 1){
                 self.presentationMode.wrappedValue.dismiss()
