@@ -95,6 +95,7 @@ struct ResultSearchBookView: View {
         }
         .onAppear(perform: {
             print("SearchNow", request)
+            Books.data = .init() // 検索結果を初期化
             Books.getData(request: request)
             if(argResultNaviTitle.count < 1){
                 self.presentationMode.wrappedValue.dismiss()
