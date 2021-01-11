@@ -86,11 +86,22 @@ struct ResultSearchBookView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
-                
                 Button(action: {
                     addTypeBookData.toggle()
                 },label:{
                     Text("手入力")
+                })
+            }
+            ToolbarItem(placement: .cancellationAction){
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(.blue)
+                        Text("戻る")
+                    }
                 })
             }
         })
