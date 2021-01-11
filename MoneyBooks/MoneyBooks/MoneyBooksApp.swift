@@ -17,7 +17,7 @@ struct MoneyBooksApp: App {
         WindowGroup {
             HomeMoneyBooksView(viaBottomBar: $bottomItem, openBarcodeScannerView: $showScanner)
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                .toolbar(content: {
+                .toolbar(content: { // バグで(ListmanagmentView.swiftの)bottombarが消えるため、仕方なく
                     ToolbarItemGroup(placement: .bottomBar) {
                         if(bottomItem != true){
                             Button(action: {

@@ -13,6 +13,7 @@ struct TypeBookDataView: View {
     @State var setImage:UIImage?
     @Environment(\.presentationMode) var presentationMode
     
+    @Binding var changeNaviTitle:String
     @Binding var title: String
     @Binding var author: String
     @Binding var regularPrice: String
@@ -31,6 +32,7 @@ struct TypeBookDataView: View {
     
     @State private var setUpVariable:Bool = false
     @StateObject var manualInput = ManualInput()
+    @State var naviTitle:String = ""
     
     var body: some View {
         Form {
@@ -41,57 +43,57 @@ struct TypeBookDataView: View {
                         .frame(width: 200, height: 200, alignment: .center)
                     Spacer()
                 }
-                TextField("本のタイトルを入力してください", text: $title)
-                TextField("作者を入力してください", text: $author)
+                TextField("本のタイトルを入力してください", text: $manualInput.title)
+                TextField("作者を入力してください", text: $manualInput.author)
                 
-                TextField("定価を入力してください", text: $regularPrice,
+                TextField("定価を入力してください", text: $manualInput.regularPrice,
                           onEditingChanged: { begin in
-                            regularPrice = checkerYen(typeMoney: regularPrice)
+                            manualInput.regularPrice = checkerYen(typeMoney: manualInput.regularPrice)
                             
                           })
                     .keyboardType(.numbersAndPunctuation)
                 
-                DatePicker("購入日", selection: $dateOfPurchase, displayedComponents: .date)
+                DatePicker("購入日", selection: $manualInput.dateOfPurchase, displayedComponents: .date)
                 
-                Picker(selection: $stateOfControl, label: Text("管理先を指定してください")) {
+                Picker(selection: $manualInput.stateOfControl, label: Text("管理先を指定してください")) {
                     ForEach(0 ..< manualInput.managementStatus.count) { num in
                         Text(manualInput.managementStatus[num])
                     }
                 }
             }
             Section(header: Text("メモ")){
-                TextEditor(text: $memo)
+                TextEditor(text: $manualInput.memo)
             }
  
-            if(stateOfControl == 0){
+            if(manualInput.stateOfControl == 0){
                 Group {
                     Section(header: Text("感想")){
-                        TextEditor(text: $impressions)
+                        TextEditor(text: $manualInput.impressions)
                     }
                     Section(header: Text("あなたにとってこの本は？")){
                         HStack(spacing: 10) {
-                            ForEach(0..<favorite, id:\.self){ yellow in
+                            ForEach(0..<manualInput.favorite, id:\.self){ yellow in
                                 Image(systemName: "star.fill")
                                     .onTapGesture(perform: {
-                                        favorite = yellow + 1
-                                        unfavorite = 4 - yellow
+                                        manualInput.favorite = yellow + 1
+                                        manualInput.unfavorite = 4 - yellow
                                     })
                                     .foregroundColor(.yellow)
                                     .padding()
                             }
-                            ForEach(0..<unfavorite, id: \.self){ gray in
+                            ForEach(0..<manualInput.unfavorite, id: \.self){ gray in
                                 Image(systemName: "star.fill")
                                     .onTapGesture(perform: {
-                                        favorite += (gray + 1)
-                                        unfavorite -= (gray + 1)
+                                        manualInput.favorite += (gray + 1)
+                                        manualInput.unfavorite -= (gray + 1)
                                     })
                                     .padding()
                                     .foregroundColor(.gray)
                             }
                         }
-                        TextField("どれぐらいの価値ですか？", text: $yourValue,
+                        TextField("どれぐらいの価値ですか？", text: $manualInput.yourValue,
                                   onEditingChanged: { begin in
-                                    yourValue = checkerYen(typeMoney: yourValue)
+                                    manualInput.yourValue = checkerYen(typeMoney: manualInput.yourValue)
                                   })
                             .keyboardType(.numbersAndPunctuation)
                     }
@@ -99,10 +101,14 @@ struct TypeBookDataView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .navigationBarTitle(Text(changeNaviTitle))
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
+                    changeNaviTitle = ""
                     addItem()
+                    
+                    stateOfControl = manualInput.stateOfControl
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("追加")
@@ -129,10 +135,13 @@ struct TypeBookDataView: View {
                     }
                 })
         )
-    }
-    
-    private func replaceVariable(title:String, author:String, regularPrice:String, dateOfPurchase:Date, stateOfControl:Int ,yourValue:String, memo:String, impressions:String, favorite:Int) -> (String,String,String,Date,Int,String,String,String,Int,Int){
-        return(title, author, regularPrice, dateOfPurchase, stateOfControl, yourValue, memo, impressions, favorite, (5-favorite))
+        .onAppear(perform: {
+            if(setUpVariable != true){
+                // @Bindingの値だと再描画されるため、変数を入れ替える
+                (manualInput.title, manualInput.author, manualInput.regularPrice, manualInput.dateOfPurchase,manualInput.stateOfControl,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite) = replaceVariable(title: title, author: author, regularPrice: regularPrice, dateOfPurchase: dateOfPurchase, stateOfControl: stateOfControl, yourValue: yourValue, memo: memo, impressions: impressions, favorite: favorite)
+            }
+            setUpVariable = true
+        })
     }
     
     private func addItem() {
@@ -144,15 +153,15 @@ struct TypeBookDataView: View {
                 pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
             }
             newItem.img = pickedImage!
-            newItem.title = title
-            newItem.author =  author
-            newItem.regularPrice = dataSetMoney(setMoney: regularPrice)
-            newItem.dateOfPurchase = dateOfPurchase
-            newItem.stateOfControl = Int16(stateOfControl)
-            newItem.memo = memo
-            newItem.impressions =  impressions
-            newItem.favorite = Int16(favorite)
-            newItem.yourValue = dataSetMoney(setMoney: yourValue)
+            newItem.title = manualInput.title
+            newItem.author =  manualInput.author
+            newItem.regularPrice = dataSetMoney(setMoney: manualInput.regularPrice)
+            newItem.dateOfPurchase = manualInput.dateOfPurchase
+            newItem.stateOfControl = Int16(manualInput.stateOfControl)
+            newItem.memo = manualInput.memo
+            newItem.impressions =  manualInput.impressions
+            newItem.favorite = Int16(manualInput.favorite)
+            newItem.yourValue = dataSetMoney(setMoney: manualInput.yourValue)
             do {
                 try viewContext.save()
             } catch {
@@ -182,4 +191,8 @@ struct TypeBookDataView: View {
             return 0
         }
     }
+}
+
+func replaceVariable(title:String, author:String, regularPrice:String, dateOfPurchase:Date, stateOfControl:Int ,yourValue:String, memo:String, impressions:String, favorite:Int) -> (String,String,String,Date,Int,String,String,String,Int,Int){
+    return(title, author, regularPrice, dateOfPurchase, stateOfControl, yourValue, memo, impressions, favorite, (5-favorite))
 }

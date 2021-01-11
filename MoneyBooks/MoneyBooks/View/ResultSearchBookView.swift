@@ -29,13 +29,28 @@ class ManualInput : ObservableObject {
 struct ResultSearchBookView: View {
     @StateObject var Books = GoogleBooksAPIViewModel()
     
-    @Binding var request:String
+    
     @Environment(\.presentationMode) var presentationMode
     @StateObject var manualInput = ManualInput()
-    @Binding var toStart:Int
-    @Binding var typeFlag:Bool
+    @Binding var argResultNaviTitle:String
+    @Binding var request:String
     
+    @State var addTypeBookData:Bool = false
     var body : some View{
+        NavigationLink(
+            destination: TypeBookDataView(changeNaviTitle: $argResultNaviTitle,
+                                          title: $manualInput.title,
+                                          author: $manualInput.author,
+                                          regularPrice: $manualInput.regularPrice,
+                                          dateOfPurchase: $manualInput.dateOfPurchase,
+                                          stateOfControl: $manualInput.stateOfControl,
+                                          yourValue: $manualInput.yourValue,
+                                          memo: $manualInput.memo,
+                                          impressions: $manualInput.impressions,
+                                          favorite: $manualInput.favorite,
+                                          unfavorite: $manualInput.unfavorite),
+            isActive: $addTypeBookData,
+            label: {})
         List(Books.data){i in
             HStack{
                 if i.imgUrl != ""{
@@ -54,36 +69,28 @@ struct ResultSearchBookView: View {
             .onTapGesture {
                 if(i.title != "データを手入力"){
                     print("CoreDataに登録")
-                    //dislayStatus.closedSearchView = true
                 }else{
                     print("手入力画面に遷移")
-                    typeFlag.toggle()
                 }
             }
         }
         .onAppear(perform: {
             print("SearchNow", request)
-            print("asdf",typeFlag)
             Books.getData(request: request)
+            if(argResultNaviTitle.count < 1){
+                self.presentationMode.wrappedValue.dismiss()
+            }
         })
-        .onDisappear(perform: {
-            print(typeFlag)
-        })
-        
         .navigationTitle("検索結果")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar(content: {
-            ToolbarItem(placement: .cancellationAction){
+            ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
+                
                 Button(action: {
-                    self.presentationMode.wrappedValue.dismiss()
-                }, label: {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(.blue)
-                        Text("戻る")
-                    }
+                    addTypeBookData.toggle()
+                },label:{
+                    Text("手入力")
                 })
             }
         })
@@ -94,5 +101,6 @@ struct ResultSearchBookView: View {
                         self.presentationMode.wrappedValue.dismiss()
                     }
                 })
-        )    }
+        )
+    }
 }

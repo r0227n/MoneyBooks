@@ -5,12 +5,20 @@
 //  Created by RyoNishimura on 2021/01/04.
 //
 
+/*
+ bottombarが消えるバグのせいで、
+ListManagementView.swift ⇄ TypeBookDataView.swift
+ で切り替えるタイミングでHomeMoneyBooksView.swiftが毎回再描画される。
+ そして、@EnvironmentObjectで管理している変数は初期値に戻るため、使えない。
+*/
+
 import SwiftUI
 
 class ManagementInformation : ObservableObject {
     @Published var regular:Int = 0
     @Published var your:Int = 0
-    @Published var categoryNumber = [0,0,0]
+    @Published var numberOfDisplay = [0,0,0]
+    @Published var upDataSignal:Bool = false
 }
 
 struct HomeMoneyBooksView: View {
@@ -26,49 +34,59 @@ struct HomeMoneyBooksView: View {
     @State var managementNumber:Int = 1
     @State var openManagmentList:Bool = false
     
-
- 
     var body: some View {
         NavigationView {
-            VStack{
+            VStack{ // VStack(HStack)でまとめないと何故か表示されない
                 NavigationLink(destination: ListManagementView(numberOfBooks: $managementNumber,
                                                                listViewTitle: $manualInput.managementStatus[managementNumber],
                                                                openBarcodeView: $openBarcodeScannerView,
-                                                               bottomBarHidden: $viaBottomBar, collectionCountDown: $managementInformation.categoryNumber),
+                                                               bottomBarHidden: $viaBottomBar,
+                                                               collectionCountDown: $managementInformation.upDataSignal),
                                isActive: $openManagmentList, label: {})
-                
-                myList
+                managmentList
             }
         }
-        .onAppear(perform: { //起動時、カテゴリー別の管理数をカウントする
+        .onAppear(perform: {
+            //起動時、カテゴリー別の管理数をカウントする
             items.forEach {
                 managementInformation.regular += Int($0.regularPrice)
                 managementInformation.your += Int($0.yourValue)
-                managementInformation.categoryNumber[Int($0.stateOfControl)] += 1
+                managementInformation.numberOfDisplay[Int($0.stateOfControl)] += 1
             }
         })
-        
+        .onChange(of: managementInformation.upDataSignal, perform: { update in
+            // managmentListの値を更新
+            managementInformation.regular = 0
+            managementInformation.your = 0
+            managementInformation.numberOfDisplay = [0,0,0]
+            items.forEach {
+                managementInformation.regular += Int($0.regularPrice)
+                managementInformation.your += Int($0.yourValue)
+                managementInformation.numberOfDisplay[Int($0.stateOfControl)] += 1
+            }
+        })
         .sheet(isPresented: $openBarcodeScannerView) {
-            BarcodeScannerView(toStart: $managementNumber, collectionCountUp: $managementInformation.categoryNumber)
+            BarcodeScannerView(openCollectionViewNumber: $managementNumber,
+                               collectionCountUp: $managementInformation.upDataSignal)
         }
     }
     
     
-    var myList: some View {
+    var managmentList: some View {
         Form {
             Section(header: Text("合計金額")){
                 totalPriceView
             }
             Section(header: Text("マイリスト")){
-                ForEach(0..<3) { num in
+                ForEach(0..<3) { category in
                     Button(action: {
-                        managementNumber = num
+                        managementNumber = category
                         openManagmentList.toggle()
                     },label:{
                         HStack {
-                            Text(manualInput.managementStatus[num])
+                            Text(manualInput.managementStatus[category])
                             Spacer()
-                            Text("\(managementInformation.categoryNumber[num])")
+                            Text("\(managementInformation.numberOfDisplay[category])")
                         }
                         .padding()
                     })

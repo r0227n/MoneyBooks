@@ -14,20 +14,22 @@ struct ListManagementView: View {
     var items: FetchedResults<Books>
     @Environment(\.managedObjectContext) private var viewContext
     @State private var image:Data = .init(count:0)
+
     
     @Environment(\.presentationMode) var presentationMode
     @Binding var numberOfBooks:Int
     @Binding var listViewTitle:String
     @Binding var openBarcodeView:Bool
     @Binding var bottomBarHidden:Bool
-    @Binding var collectionCountDown: [Int]
+    @Binding var collectionCountDown: Bool
     @StateObject var manualInput = ManualInput()
     
+    @State var argListNaviTitle:String = "編集画面"
     
-
     var body: some View {
         NavigationLink(
-            destination: TypeBookDataView(title: $manualInput.title,
+            destination: TypeBookDataView(changeNaviTitle: $argListNaviTitle,
+                                          title: $manualInput.title,
                                           author: $manualInput.author,
                                           regularPrice: $manualInput.regularPrice,
                                           dateOfPurchase: $manualInput.dateOfPurchase,
@@ -80,15 +82,15 @@ struct ListManagementView: View {
                     }
                 })
             }
+            // ListManagementView ⇄ BarcodeScannerViewの入れ替えでボタンがスムーズに表示するため（ないと表示に遅延が発生する）
             ToolbarItemGroup(placement: .bottomBar) {
-                    Button(action: {
-                        openBarcodeView.toggle()
-                    }, label: {
-                        Image(systemName: "plus.circle.fill")
-                        Text("書籍を追加")
-                    })
-                    Spacer()
-                
+                Button(action: {
+                    openBarcodeView.toggle()
+                }, label: {
+                    Image(systemName: "plus.circle.fill")
+                    Text("書籍を追加")
+                })
+                Spacer()
             }
         })
         .gesture(
@@ -99,9 +101,6 @@ struct ListManagementView: View {
                     }
                 })
         )
-        .onDisappear(perform: {
-            print("closeList")
-        })
     }
     
     
@@ -121,7 +120,7 @@ struct ListManagementView: View {
 
     
     func deleteItems(offsets: IndexSet) {
-        collectionCountDown[numberOfBooks] -= 1
+        collectionCountDown.toggle()
         withAnimation {
             offsets.map { items[$0] }.forEach(viewContext.delete)
             do {

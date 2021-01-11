@@ -14,10 +14,10 @@ struct BarcodeScannerView: View {
     @State var scannedCode: String = "9784061538238"
     @Environment(\.presentationMode) var presentationMode
     @StateObject var manualInput = ManualInput()
-    @State var argTitle: String = "手入力画面"
+    @State var argTitle: String = "手入力"
     @State var addTypBookDataView:Bool = false
-    @Binding var toStart:Int
-    @Binding var collectionCountUp: [Int]
+    @Binding var openCollectionViewNumber:Int
+    @Binding var collectionCountUp: Bool
     
     var body: some View {
         NavigationView {
@@ -26,9 +26,11 @@ struct BarcodeScannerView: View {
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
                 NavigationLink(
-                    destination: ResultSearchBookView(request: $scannedCode, toStart: $toStart, typeFlag: $addTypBookDataView),
+                    destination: ResultSearchBookView(argResultNaviTitle: $argTitle,
+                                                      request: $scannedCode),
                     isActive: $loadingCompleted,
                     label: { })
+                
             }
             .onChange(of: scannedCode, perform: { value in
                 if(scannedCode.prefix(3) == "978"){  // BarCodeの上の段
@@ -38,8 +40,8 @@ struct BarcodeScannerView: View {
                 }
             })
             .onAppear(perform: {
-                if(addTypBookDataView != false){
-                    collectionCountUp[toStart] += 1
+                if(argTitle.count < 1){
+                    collectionCountUp.toggle()
                     self.presentationMode.wrappedValue.dismiss()
                 }
             })
@@ -48,17 +50,17 @@ struct BarcodeScannerView: View {
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                     NavigationLink(
-                        destination: TypeBookDataView(title: $manualInput.title,
+                        destination: TypeBookDataView(changeNaviTitle: $argTitle,
+                                                      title: $manualInput.title,
                                                       author: $manualInput.author,
                                                       regularPrice: $manualInput.regularPrice,
                                                       dateOfPurchase: $manualInput.dateOfPurchase,
-                                                      stateOfControl: $toStart,
+                                                      stateOfControl: $manualInput.stateOfControl,
                                                       yourValue: $manualInput.yourValue,
                                                       memo: $manualInput.memo,
                                                       impressions: $manualInput.impressions,
                                                       favorite: $manualInput.favorite,
                                                       unfavorite: $manualInput.unfavorite),
-                        isActive: $addTypBookDataView,
                         label: {
                             Text(argTitle)
                         })
