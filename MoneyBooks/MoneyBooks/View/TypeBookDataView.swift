@@ -7,12 +7,14 @@
 
 import SwiftUI
 import CoreData
+import SDWebImageSwiftUI
 
 struct TypeBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State var setImage:UIImage?
     @Environment(\.presentationMode) var presentationMode
-    
+
+    @Binding var webImg:String
     @Binding var changeNaviTitle:String
     @Binding var title: String
     @Binding var author: String
@@ -39,8 +41,15 @@ struct TypeBookDataView: View {
             Section(header: Text("表紙")){
                 HStack {
                     Spacer()
-                    LocalImageView(inputImage: $setImage)
-                        .frame(width: 200, height: 200, alignment: .center)
+                    if(webImg.count != 0){
+                        WebImage(url: URL(string: webImg)!)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200, alignment: .center)
+                    }else{
+                        LocalImageView(inputImage: $setImage)
+                            .frame(width: 200, height: 200, alignment: .center)
+                    }
                     Spacer()
                 }
                 TextField("本のタイトルを入力してください", text: $manualInput.title)
@@ -107,7 +116,6 @@ struct TypeBookDataView: View {
                 Button(action: {
                     changeNaviTitle = ""
                     addItem()
-                    
                     stateOfControl = manualInput.stateOfControl
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
@@ -172,27 +180,29 @@ struct TypeBookDataView: View {
     }
 
     
-    func checkerYen(typeMoney:String) -> String {
-        var indexOfYen = typeMoney
-        if(indexOfYen.contains("円")) {
-            indexOfYen = String(indexOfYen.dropLast(1))
-        } else if(indexOfYen.count > 0){
-            indexOfYen += "円"
-        }
-        return indexOfYen
-    }
     
-    func dataSetMoney(setMoney: String) -> Int16 {
-        var recordOfMoney = setMoney
-        if(recordOfMoney.contains("円")){
-            recordOfMoney = String(recordOfMoney.dropLast(1))
-            return Int16(recordOfMoney)!
-        }else{
-            return 0
-        }
-    }
 }
 
 func replaceVariable(title:String, author:String, regularPrice:String, dateOfPurchase:Date, stateOfControl:Int ,yourValue:String, memo:String, impressions:String, favorite:Int) -> (String,String,String,Date,Int,String,String,String,Int,Int){
     return(title, author, regularPrice, dateOfPurchase, stateOfControl, yourValue, memo, impressions, favorite, (5-favorite))
+}
+
+func checkerYen(typeMoney:String) -> String {
+    var indexOfYen = typeMoney
+    if(indexOfYen.contains("円")) {
+        indexOfYen = String(indexOfYen.dropLast(1))
+    } else if(indexOfYen.count > 0){
+        indexOfYen += "円"
+    }
+    return indexOfYen
+}
+
+func dataSetMoney(setMoney: String) -> Int16 {
+    var recordOfMoney = setMoney
+    if(recordOfMoney.contains("円")){
+        recordOfMoney = String(recordOfMoney.dropLast(1))
+        return Int16(recordOfMoney)!
+    }else{
+        return 0
+    }
 }
