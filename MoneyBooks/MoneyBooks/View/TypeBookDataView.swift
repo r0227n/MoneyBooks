@@ -115,7 +115,8 @@ struct TypeBookDataView: View {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
                     changeNaviTitle = ""
-                    addItem()
+                    //addItem()
+                    updateItem()
                     stateOfControl = manualInput.stateOfControl
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
@@ -176,6 +177,33 @@ struct TypeBookDataView: View {
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
+        }
+    }
+    
+    func updateItem() {
+        let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
+        fetchRequest.predicate = NSPredicate.init(format: "title=%@", title)
+        var pickedImage = setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
+
+        if pickedImage == nil { // 画像が選択されていない場合
+            pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
+        }
+        do {
+            let editItem = try self.viewContext.fetch(fetchRequest).first
+            
+            editItem?.img = pickedImage!
+            editItem?.title = manualInput.title
+            editItem?.author =  manualInput.author
+            editItem?.regularPrice = dataSetMoney(setMoney: manualInput.regularPrice)
+            editItem?.dateOfPurchase = manualInput.dateOfPurchase
+            editItem?.stateOfControl = Int16(manualInput.stateOfControl)
+            editItem?.memo = manualInput.memo
+            editItem?.impressions =  manualInput.impressions
+            editItem?.favorite = Int16(manualInput.favorite)
+            editItem?.yourValue = dataSetMoney(setMoney: manualInput.yourValue)
+            try self.viewContext.save()
+        } catch {
+            print(error)
         }
     }
 
