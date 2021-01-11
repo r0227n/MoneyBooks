@@ -8,27 +8,30 @@
 import SwiftUI
 
 struct BarcodeScannerView: View {
-    //@StateObject var viewModel = BarcodeScannerViewModel()
     @StateObject var requestViewModel = GoogleBooksAPIViewModel()
     @State var isbn:String?
     @State var loadingCompleted = false
     @State var scannedCode: String = "9784061538238"
+    @Environment(\.presentationMode) var presentationMode
+    @StateObject var manualInput = ManualInput()
+    @State var argTitle: String = "手入力"
+    @State var addTypBookDataView:Bool = false
+    @Binding var openCollectionViewNumber:Int
+    @Binding var collectionCountUp: Bool
     
     var body: some View {
         NavigationView {
             VStack {
                 ScannerView(scannedCode: $scannedCode)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                Spacer()
-                    .frame(height: 60)
+                    .aspectRatio(contentMode: .fill)
+                    .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
                 NavigationLink(
-                    destination: ResultSearchBookView(request: $scannedCode),
+                    destination: ResultSearchBookView(argResultNaviTitle: $argTitle,
+                                                      request: $scannedCode),
                     isActive: $loadingCompleted,
-                    label: {
-                        //
-                    })
+                    label: { })
+                
             }
-            .navigationTitle("Barcode Scanner")
             .onChange(of: scannedCode, perform: { value in
                 if(scannedCode.prefix(3) == "978"){  // BarCodeの上の段
                     loadingCompleted = true
@@ -36,12 +39,40 @@ struct BarcodeScannerView: View {
                     // 値段の部分を引き抜く
                 }
             })
+            .onAppear(perform: {
+                if(argTitle.count < 1){
+                    collectionCountUp.toggle()
+                    self.presentationMode.wrappedValue.dismiss()
+                }
+            })
+            .navigationTitle("新規追加")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(content: {
+                ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
+                    NavigationLink(
+                        destination: TypeBookDataView(changeNaviTitle: $argTitle,
+                                                      title: $manualInput.title,
+                                                      author: $manualInput.author,
+                                                      regularPrice: $manualInput.regularPrice,
+                                                      dateOfPurchase: $manualInput.dateOfPurchase,
+                                                      stateOfControl: $manualInput.stateOfControl,
+                                                      yourValue: $manualInput.yourValue,
+                                                      memo: $manualInput.memo,
+                                                      impressions: $manualInput.impressions,
+                                                      favorite: $manualInput.favorite,
+                                                      unfavorite: $manualInput.unfavorite),
+                        label: {
+                            Text(argTitle)
+                        })
+                }
+                ToolbarItem(placement: .cancellationAction){
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Text("キャンセル")
+                    })
+                }
+            })
         }
-    }
-}
-
-struct BarcodeScannerView_Previews: PreviewProvider {
-    static var previews: some View {
-        BarcodeScannerView()
     }
 }
