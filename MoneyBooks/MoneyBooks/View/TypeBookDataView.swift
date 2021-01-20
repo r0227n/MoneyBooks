@@ -9,23 +9,69 @@ import SwiftUI
 import CoreData
 import SDWebImageSwiftUI
 
+
 struct TypeBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State var setImage:UIImage?
     @Environment(\.presentationMode) var presentationMode
 
-    @Binding var webImg:String
-    @Binding var changeNaviTitle:String
-    @Binding var title: String
-    @Binding var author: String
-    @Binding var regularPrice: String
-    @Binding var dateOfPurchase: Date
-    @Binding var stateOfControl:Int
-    @Binding var yourValue: String
-    @Binding var memo: String
-    @Binding var impressions: String
-    @Binding var favorite: Int
-    @Binding var unfavorite: Int
+
+//    @Binding var webImg:String
+//    @Binding var changeNaviTitle:String
+//    @Binding var title: String
+//    @Binding var author: String
+//    @Binding var regularPrice: String
+//    @Binding var dateOfPurchase: Date
+//    @Binding var stateOfControl:Int
+//    @Binding var yourValue: String
+//    @Binding var memo: String
+//    @Binding var impressions: String
+//    @Binding var favorite: Int
+//    @Binding var unfavorite: Int
+    
+    let argumentImg: String
+    let argumentNavi: String
+    let argumentTitle: String
+    let argumentAuthor: String
+    let argumentRegularPrice: String
+    let argumentDateOfPurchase: Date
+    let argumentStateOfControl:Int
+    let argumentYourValue: String
+    let argumentMemo: String
+    let argumentImpressions: String
+    let argumentFavorite: Int
+    let argumentUnfavorite: Int
+    
+    
+    
+    @State var img: String = ""
+    @State var navi: String = ""
+    @State var bookTitle: String = ""
+    @State var author: String = ""
+    @State var regularPrice: String = ""
+    @State var dateOfPurchase: Date = Date()
+    @State var stateOfControl:Int = 0
+    @State var yourValue: String = ""
+    @State var memo: String = ""
+    @State var impressions: String = ""
+    @State var favorite: Int = 0
+    @State var unfavorite: Int = 0
+    
+    init(webImg: String, changeNaviTitle: String, title: String, author: String, regularPrice: String,
+         dateOfPurchase: Date, stateOfControl: Int, yourValue: String, memo: String, impressions: String, favorite: Int, unfavorite: Int){
+        argumentImg = webImg
+        argumentNavi = changeNaviTitle
+        argumentTitle = title
+        argumentAuthor = author
+        argumentRegularPrice = regularPrice
+        argumentDateOfPurchase = dateOfPurchase
+        argumentStateOfControl = stateOfControl
+        argumentYourValue = yourValue
+        argumentMemo = memo
+        argumentImpressions = impressions
+        argumentFavorite = favorite
+        argumentUnfavorite = unfavorite
+    }
     
     @FetchRequest(
         sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
@@ -41,8 +87,8 @@ struct TypeBookDataView: View {
             Section(header: Text("表紙")){
                 HStack {
                     Spacer()
-                    if(webImg.count != 0){
-                        WebImage(url: URL(string: webImg)!)
+                    if(img.count != 0){
+                        WebImage(url: URL(string: img)!)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 200, height: 200, alignment: .center)
@@ -52,57 +98,57 @@ struct TypeBookDataView: View {
                     }
                     Spacer()
                 }
-                TextField("本のタイトルを入力してください", text: $manualInput.title)
-                TextField("作者を入力してください", text: $manualInput.author)
+                TextField("本のタイトルを入力してください", text: $bookTitle)
+                TextField("作者を入力してください", text: $author)
                 
-                TextField("定価を入力してください", text: $manualInput.regularPrice,
+                TextField("定価を入力してください", text: $regularPrice,
                           onEditingChanged: { begin in
-                            manualInput.regularPrice = checkerYen(typeMoney: manualInput.regularPrice)
+                            regularPrice = checkerYen(typeMoney: regularPrice)
                             
                           })
                     .keyboardType(.numbersAndPunctuation)
                 
-                DatePicker("購入日", selection: $manualInput.dateOfPurchase, displayedComponents: .date)
+                DatePicker("購入日", selection: $dateOfPurchase, displayedComponents: .date)
                 
-                Picker(selection: $manualInput.stateOfControl, label: Text("管理先を指定してください")) {
+                Picker(selection: $stateOfControl, label: Text("管理先を指定してください")) {
                     ForEach(0 ..< manualInput.managementStatus.count) { num in
                         Text(manualInput.managementStatus[num])
                     }
                 }
             }
             Section(header: Text("メモ")){
-                TextEditor(text: $manualInput.memo)
+                TextEditor(text: $memo)
             }
  
-            if(manualInput.stateOfControl == 0){
+            if(stateOfControl == 0){
                 Group {
                     Section(header: Text("感想")){
-                        TextEditor(text: $manualInput.impressions)
+                        TextEditor(text: $impressions)
                     }
                     Section(header: Text("あなたにとってこの本は？")){
                         HStack(spacing: 10) {
-                            ForEach(0..<manualInput.favorite, id:\.self){ yellow in
+                            ForEach(0..<favorite, id:\.self){ yellow in
                                 Image(systemName: "star.fill")
                                     .onTapGesture(perform: {
-                                        manualInput.favorite = yellow + 1
-                                        manualInput.unfavorite = 4 - yellow
+                                        favorite = yellow + 1
+                                        unfavorite = 4 - yellow
                                     })
                                     .foregroundColor(.yellow)
                                     .padding()
                             }
-                            ForEach(0..<manualInput.unfavorite, id: \.self){ gray in
+                            ForEach(0..<unfavorite, id: \.self){ gray in
                                 Image(systemName: "star.fill")
                                     .onTapGesture(perform: {
-                                        manualInput.favorite += (gray + 1)
-                                        manualInput.unfavorite -= (gray + 1)
+                                        favorite += (gray + 1)
+                                        unfavorite -= (gray + 1)
                                     })
                                     .padding()
                                     .foregroundColor(.gray)
                             }
                         }
-                        TextField("どれぐらいの価値ですか？", text: $manualInput.yourValue,
+                        TextField("どれぐらいの価値ですか？", text: $yourValue,
                                   onEditingChanged: { begin in
-                                    manualInput.yourValue = checkerYen(typeMoney: manualInput.yourValue)
+                                    yourValue = checkerYen(typeMoney: yourValue)
                                   })
                             .keyboardType(.numbersAndPunctuation)
                     }
@@ -110,14 +156,14 @@ struct TypeBookDataView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(Text(changeNaviTitle))
+        .navigationBarTitle(Text(navi))
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
-                    changeNaviTitle = ""
+                    navi = ""
                     //addItem()
                     updateItem()
-                    stateOfControl = manualInput.stateOfControl
+                    //stateOfControl = manualInput.stateOfControl
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("追加")
@@ -146,11 +192,27 @@ struct TypeBookDataView: View {
         )
         .onAppear(perform: {
             if(setUpVariable != true){
+                Stateinitializer()
                 // @Bindingの値だと再描画されるため、変数を入れ替える
-                (manualInput.title, manualInput.author, manualInput.regularPrice, manualInput.dateOfPurchase,manualInput.stateOfControl,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite) = replaceVariable(title: title, author: author, regularPrice: regularPrice, dateOfPurchase: dateOfPurchase, stateOfControl: stateOfControl, yourValue: yourValue, memo: memo, impressions: impressions, favorite: favorite)
+//                (manualInput.title, manualInput.author, manualInput.regularPrice, manualInput.dateOfPurchase,manualInput.stateOfControl,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite) = replaceVariable(title: title, author: author, regularPrice: regularPrice, dateOfPurchase: dateOfPurchase, stateOfControl: stateOfControl, yourValue: yourValue, memo: memo, impressions: impressions, favorite: favorite)
             }
             setUpVariable = true
         })
+    }
+    
+    private func Stateinitializer(){
+        img = argumentImg
+        navi = argumentNavi
+        bookTitle = argumentTitle
+        author = argumentAuthor
+        regularPrice = argumentRegularPrice
+        dateOfPurchase = argumentDateOfPurchase
+        stateOfControl = argumentStateOfControl
+        yourValue = argumentYourValue
+        memo = argumentMemo
+        impressions = argumentImpressions
+        favorite = argumentFavorite
+        unfavorite = argumentUnfavorite
     }
     
     private func addItem() {
@@ -162,15 +224,15 @@ struct TypeBookDataView: View {
                 pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
             }
             newItem.img = pickedImage!
-            newItem.title = manualInput.title
-            newItem.author =  manualInput.author
-            newItem.regularPrice = dataSetMoney(setMoney: manualInput.regularPrice)
-            newItem.dateOfPurchase = manualInput.dateOfPurchase
-            newItem.stateOfControl = Int16(manualInput.stateOfControl)
-            newItem.memo = manualInput.memo
-            newItem.impressions =  manualInput.impressions
-            newItem.favorite = Int16(manualInput.favorite)
-            newItem.yourValue = dataSetMoney(setMoney: manualInput.yourValue)
+            newItem.title = bookTitle
+            newItem.author =  author
+            newItem.regularPrice = dataSetMoney(setMoney: regularPrice)
+            newItem.dateOfPurchase = dateOfPurchase
+            newItem.stateOfControl = Int16(stateOfControl)
+            newItem.memo = memo
+            newItem.impressions =  impressions
+            newItem.favorite = Int16(favorite)
+            newItem.yourValue = dataSetMoney(setMoney: yourValue)
             do {
                 try viewContext.save()
             } catch {
@@ -182,7 +244,7 @@ struct TypeBookDataView: View {
     
     func updateItem() {
         let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
-        fetchRequest.predicate = NSPredicate.init(format: "title=%@", title)
+        fetchRequest.predicate = NSPredicate.init(format: "title=%@", argumentTitle)
         var pickedImage = setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
 
         if pickedImage == nil { // 画像が選択されていない場合
@@ -192,15 +254,15 @@ struct TypeBookDataView: View {
             let editItem = try self.viewContext.fetch(fetchRequest).first
             
             editItem?.img = pickedImage!
-            editItem?.title = manualInput.title
-            editItem?.author =  manualInput.author
-            editItem?.regularPrice = dataSetMoney(setMoney: manualInput.regularPrice)
-            editItem?.dateOfPurchase = manualInput.dateOfPurchase
-            editItem?.stateOfControl = Int16(manualInput.stateOfControl)
-            editItem?.memo = manualInput.memo
-            editItem?.impressions =  manualInput.impressions
-            editItem?.favorite = Int16(manualInput.favorite)
-            editItem?.yourValue = dataSetMoney(setMoney: manualInput.yourValue)
+            editItem?.title = bookTitle
+            editItem?.author =  author
+            editItem?.regularPrice = dataSetMoney(setMoney: regularPrice)
+            editItem?.dateOfPurchase = dateOfPurchase
+            editItem?.stateOfControl = Int16(stateOfControl)
+            editItem?.memo = memo
+            editItem?.impressions =  impressions
+            editItem?.favorite = Int16(favorite)
+            editItem?.yourValue = dataSetMoney(setMoney: yourValue)
             try self.viewContext.save()
         } catch {
             print(error)

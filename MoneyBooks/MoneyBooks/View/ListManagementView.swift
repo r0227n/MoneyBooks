@@ -29,18 +29,18 @@ struct ListManagementView: View {
     
     var body: some View {
         NavigationLink(
-            destination: TypeBookDataView(webImg: $notImage,
-                                          changeNaviTitle: $argListNaviTitle,
-                                          title: $manualInput.title,
-                                          author: $manualInput.author,
-                                          regularPrice: $manualInput.regularPrice,
-                                          dateOfPurchase: $manualInput.dateOfPurchase,
-                                          stateOfControl: $numberOfBooks,
-                                          yourValue: $manualInput.yourValue,
-                                          memo: $manualInput.memo,
-                                          impressions: $manualInput.impressions,
-                                          favorite: $manualInput.favorite,
-                                          unfavorite: $manualInput.unfavorite),
+            destination: TypeBookDataView(webImg: notImage,
+                                          changeNaviTitle: argListNaviTitle,
+                                          title: manualInput.title,
+                                          author: manualInput.author,
+                                          regularPrice: manualInput.regularPrice,
+                                          dateOfPurchase: manualInput.dateOfPurchase,
+                                          stateOfControl: numberOfBooks,
+                                          yourValue: manualInput.yourValue,
+                                          memo: manualInput.memo,
+                                          impressions: manualInput.impressions,
+                                          favorite: manualInput.favorite,
+                                          unfavorite: manualInput.unfavorite),
             isActive: $bottomBarHidden,
             label: {})
         List{

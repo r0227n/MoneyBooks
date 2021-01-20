@@ -60,18 +60,18 @@ struct BarcodeScannerView: View {
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                     NavigationLink(
-                        destination: TypeBookDataView(webImg: $notImage,
-                                                      changeNaviTitle: $argTitle,
-                                                      title: $manualInput.title,
-                                                      author: $manualInput.author,
-                                                      regularPrice: $manualInput.regularPrice,
-                                                      dateOfPurchase: $manualInput.dateOfPurchase,
-                                                      stateOfControl: $manualInput.stateOfControl,
-                                                      yourValue: $manualInput.yourValue,
-                                                      memo: $manualInput.memo,
-                                                      impressions: $manualInput.impressions,
-                                                      favorite: $manualInput.favorite,
-                                                      unfavorite: $manualInput.unfavorite),
+                        destination: TypeBookDataView(webImg: notImage,
+                                                      changeNaviTitle: argTitle,
+                                                      title: manualInput.title,
+                                                      author: manualInput.author,
+                                                      regularPrice: manualInput.regularPrice,
+                                                      dateOfPurchase: manualInput.dateOfPurchase,
+                                                      stateOfControl: manualInput.stateOfControl,
+                                                      yourValue: manualInput.yourValue,
+                                                      memo: manualInput.memo,
+                                                      impressions: manualInput.impressions,
+                                                      favorite: manualInput.favorite,
+                                                      unfavorite: manualInput.unfavorite),
                         label: {
                             Text(argTitle)
                         })
