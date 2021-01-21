@@ -23,14 +23,13 @@ struct ListManagementView: View {
     @Binding var bottomBarHidden:Bool
     @Binding var collectionCountDown: Bool
     @StateObject var manualInput = ManualInput()
-    @State var notImage:String = "" // 仕方なく
     
     @State var argListNaviTitle:String = "編集画面"
     
     var body: some View {
         NavigationLink(
-            destination: TypeBookDataView(webImg: notImage,
-                                          changeNaviTitle: argListNaviTitle,
+            destination: TypeBookDataView(img: "",
+                                          navi: 1,
                                           title: manualInput.title,
                                           author: manualInput.author,
                                           regularPrice: manualInput.regularPrice,
@@ -39,8 +38,7 @@ struct ListManagementView: View {
                                           yourValue: manualInput.yourValue,
                                           memo: manualInput.memo,
                                           impressions: manualInput.impressions,
-                                          favorite: manualInput.favorite,
-                                          unfavorite: manualInput.unfavorite),
+                                          favorite: manualInput.favorite),
             isActive: $bottomBarHidden,
             label: {})
         List{

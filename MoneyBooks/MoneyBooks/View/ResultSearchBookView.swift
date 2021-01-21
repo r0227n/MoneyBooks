@@ -41,18 +41,11 @@ struct ResultSearchBookView: View {
     @State var addTypeBookData:Bool = false
     var body : some View{
         NavigationLink(
-            destination: TypeBookDataView(webImg: imgURL,
-                                          changeNaviTitle: argResultNaviTitle,
+            destination: TypeBookDataView(imageURL: imgURL,
                                           title: manualInput.title,
                                           author: manualInput.author,
                                           regularPrice: manualInput.regularPrice,
-                                          dateOfPurchase: manualInput.dateOfPurchase,
-                                          stateOfControl: manualInput.stateOfControl,
-                                          yourValue: manualInput.yourValue,
-                                          memo: manualInput.memo,
-                                          impressions: manualInput.impressions,
-                                          favorite: manualInput.favorite,
-                                          unfavorite: manualInput.unfavorite),
+                                          stateOfControl: manualInput.stateOfControl),
             isActive: $addTypeBookData,
             label: {})
         List(Books.data){i in
