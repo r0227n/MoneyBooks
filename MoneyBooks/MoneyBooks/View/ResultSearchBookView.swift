@@ -67,23 +67,18 @@ struct ResultSearchBookView: View {
                 }
             }
             .onTapGesture {
-                if(i.title.count > 0){
-                    print("CoreDataに登録",i.imgUrl,type(of: i.imgUrl))
-                    (manualInput.title, manualInput.author, manualInput.regularPrice, manualInput.dateOfPurchase,manualInput.stateOfControl,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite)
-                        = replaceVariable(title: i.title,
-                                          author: i.authors,
-                                          regularPrice: checkerYen(typeMoney: price),
-                                          dateOfPurchase: Date(),
-                                          stateOfControl: storage,
-                                          yourValue: "",
-                                          memo: "",
-                                          impressions: "",
-                                          favorite: 1)
-                    imgURL = i.imgUrl
-                    addTypeBookData.toggle()
-                }else{
-                    print("手入力画面に遷移")
-                }
+                (manualInput.title, manualInput.author, manualInput.regularPrice, manualInput.dateOfPurchase,manualInput.stateOfControl,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
+                    = replaceVariable(title: i.title,
+                                      author: i.authors,
+                                      regularPrice: checkerYen(typeMoney: price),
+                                      dateOfPurchase: Date(),
+                                      stateOfControl: storage,
+                                      yourValue: "",
+                                      memo: "",
+                                      impressions: "",
+                                      favorite: 1)
+                imgURL = i.imgUrl
+                addTypeBookData.toggle()
             }
         }
         .onAppear(perform: {

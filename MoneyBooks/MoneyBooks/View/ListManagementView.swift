@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct ListManagementView: View {
     @FetchRequest(
@@ -24,10 +25,13 @@ struct ListManagementView: View {
     
     @State var argListNaviTitle:String = "編集画面"
     @State var argImageData:Data = .init(count:0)
+    @State var coreDataID: UUID = UUID()
+    @State var imageURL = ""
     
     var body: some View {
         NavigationLink(
             destination: TypeBookDataView(img: argImageData,
+                                          imageURL: imageURL,
                                           navi: 1,
                                           title: manualInput.title,
                                           author: manualInput.author,
@@ -37,7 +41,8 @@ struct ListManagementView: View {
                                           yourValue: manualInput.yourValue,
                                           memo: manualInput.memo,
                                           impressions: manualInput.impressions,
-                                          favorite: manualInput.favorite),
+                                          favorite: manualInput.favorite,
+                                          id: coreDataID),
             isActive: $bottomBarHidden,
             label: {})
         List{
@@ -45,18 +50,27 @@ struct ListManagementView: View {
                 if(item.stateOfControl == numberOfBooks){
                     Button(action: {
                         self.argImageData = item.img!
-                        print("load", argImageData)
+                        self.coreDataID = item.id!
+                        self.imageURL = item.webImg ?? ""
                         // CoreDataからデータを引き抜き、変数に入れ替える
-                        (manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite)
+                        (manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
                             = readCoreData(title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
                         bottomBarHidden.toggle()
                     }, label: {
                         HStack {
-                            Image(uiImage: UIImage(data: item.img ?? .init(count:0))!)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height:50)
-                                .padding(20)
+                            if(item.webImg?.count ?? 0 != 0){
+                                WebImage(url: URL(string: item.webImg!))
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 50, height:50)
+                                    //.padding(20)
+                            }else{
+                                Image(uiImage: UIImage(data: item.img ?? .init(count:0))!)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 50, height:50)
+                                    .padding(20)
+                            }
                             VStack {
                                 Text(item.title!)
                                 Text(item.author!)
@@ -106,7 +120,7 @@ struct ListManagementView: View {
     
     
     private func readCoreData(title:String, author:String, dateOfPurchase:Date, regularPrice:Int16, yourValue:Int16, memo:String, impressions:String, favorite:Int16)
-    -> (String,String,Date,String,String,String,String,Int,Int){
+    -> (String,String,Date,String,String,String,String,Int){
         
         var convertRegular:String = ""
         var convertYour:String = ""
@@ -116,7 +130,7 @@ struct ListManagementView: View {
         if(yourValue > 0){
             convertYour = String(yourValue) + "円"
         }
-        return(title, author, dateOfPurchase, convertRegular, convertYour, memo, impressions, Int(favorite), (5-Int(favorite)))
+        return(title, author, dateOfPurchase, convertRegular, convertYour, memo, impressions, Int(favorite))
     }
 
     

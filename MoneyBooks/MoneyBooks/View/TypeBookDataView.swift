@@ -33,6 +33,7 @@ struct TypeBookDataView: View {
     
     @State private var setImage: UIImage?
     @State private var coverImage: Image = Image(systemName: "nosign")
+    var bookID: UUID?
     
     let naviTextItems: [String] = ["追加","編集"]
     var argumentURL: String?
@@ -48,7 +49,7 @@ struct TypeBookDataView: View {
     var argumentMemo: String
     var argumentImpressions: String
     var argumentFavorite: Int
-    var argumentUnfavorite: Int
+    
     
     
     // Segue BarcodeScannerView
@@ -65,7 +66,6 @@ struct TypeBookDataView: View {
         argumentMemo = ""
         argumentImpressions = ""
         argumentFavorite = 5
-        argumentUnfavorite = 0
     }
     
     // Segue ResualSearchBookDataView
@@ -82,12 +82,12 @@ struct TypeBookDataView: View {
         argumentMemo = ""
         argumentImpressions = ""
         argumentFavorite = 5
-        argumentUnfavorite = 0
     }
     
     // Segue ListManagementView
-    init(img: Data, navi: Int, title: String, author: String, regularPrice: String, dateOfPurchase: Date, stateOfControl: Int, yourValue: String, memo: String, impressions: String, favorite: Int){
+    init(img: Data, imageURL: String, navi: Int, title: String, author: String, regularPrice: String, dateOfPurchase: Date, stateOfControl: Int, yourValue: String, memo: String, impressions: String, favorite: Int, id: UUID){
         argumentImage = img
+        argumentURL = imageURL
         argumentNaviTitle = navi
         argumentNaviButtonText = "更新"
         argumentTitle = title
@@ -99,7 +99,7 @@ struct TypeBookDataView: View {
         argumentMemo = memo
         argumentImpressions = impressions
         argumentFavorite = favorite
-        argumentUnfavorite = 5 - favorite
+        bookID = id
     }
     
     @FetchRequest(
@@ -124,7 +124,6 @@ struct TypeBookDataView: View {
                             Group {
                                 if(dataProperty.url.count != 0){
                                     WebImage(url: URL(string: dataProperty.url)!)
-                                        .resizable()
                                         .scaledToFit()
                                         .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
                                 }else{
@@ -241,10 +240,11 @@ struct TypeBookDataView: View {
     private func loadImage() {
         guard let setImage = setImage else { return }
         self.coverImage = Image(uiImage: setImage)
+        dataProperty.url = ""
     }
     
     private func InitializerOfPropertyView(){
-        if(argumentURL != nil){
+        if(argumentURL?.count != 0){
             dataProperty.url = argumentURL ?? ""
         }else{
             coverImage = Image(uiImage: UIImage(data: argumentImage ?? .init(count:0))!)
@@ -260,7 +260,7 @@ struct TypeBookDataView: View {
         dataProperty.memo = argumentMemo
         dataProperty.impressions = argumentImpressions
         dataProperty.favorite = argumentFavorite
-        dataProperty.unfavorite = argumentUnfavorite
+        dataProperty.unfavorite = 5 - argumentFavorite
     }
     
     private func addItem() {
@@ -271,6 +271,8 @@ struct TypeBookDataView: View {
             if pickedImage == nil { // 画像が選択されていない場合
                 pickedImage = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
             }
+            newItem.id = UUID()
+            newItem.webImg = argumentURL
             newItem.img = pickedImage!
             newItem.title = dataProperty.title
             newItem.author =  dataProperty.author
@@ -293,15 +295,17 @@ struct TypeBookDataView: View {
     
     func updateItem() {
         let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
-        fetchRequest.predicate = NSPredicate.init(format: "title=%@", argumentTitle)
+        fetchRequest.predicate = NSPredicate.init(format: "id=%@", bookID! as CVarArg)
         var pickedImage = setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
-
+        var saveToCoredataURL:String = ""
         if pickedImage == nil { // 画像が選択されていない場合
             pickedImage = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
+            saveToCoredataURL = argumentURL ?? ""
         }
         do {
             let editItem = try self.viewContext.fetch(fetchRequest).first
-            
+            editItem?.id = bookID
+            editItem?.webImg = saveToCoredataURL
             editItem?.img = pickedImage!
             editItem?.title = dataProperty.title
             editItem?.author =  dataProperty.author
@@ -353,8 +357,8 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 }
 
-func replaceVariable(title:String, author:String, regularPrice:String, dateOfPurchase:Date, stateOfControl:Int ,yourValue:String, memo:String, impressions:String, favorite:Int) -> (String,String,String,Date,Int,String,String,String,Int,Int){
-    return(title, author, regularPrice, dateOfPurchase, stateOfControl, yourValue, memo, impressions, favorite, (5-favorite))
+func replaceVariable(title:String, author:String, regularPrice:String, dateOfPurchase:Date, stateOfControl:Int ,yourValue:String, memo:String, impressions:String, favorite:Int) -> (String,String,String,Date,Int,String,String,String,Int){
+    return(title, author, regularPrice, dateOfPurchase, stateOfControl, yourValue, memo, impressions, favorite)
 }
 
 func checkerYen(typeMoney:String) -> String {
