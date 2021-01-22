@@ -9,14 +9,14 @@ import SwiftUI
 
 struct BarcodeScannerView: View {
     @StateObject var requestViewModel = GoogleBooksAPIViewModel()
-    @State var isbn:String  = ""
+    @State var isbn: String  = ""
     @State var codeReadingCompleted = false
     @State var scannedCode: String = ""
     @Environment(\.presentationMode) var presentationMode
     @StateObject var manualInput = ManualInput()
     @State var argTitle: String = "手入力"
-    @State var addTypBookDataView:Bool = false
-    @Binding var openCollectionViewNumber:Int
+    @State var addTypBookDataView: Bool = false
+    @Binding var openCollectionViewNumber: Int
     @Binding var collectionCountUp: Bool
     
     var body: some View {

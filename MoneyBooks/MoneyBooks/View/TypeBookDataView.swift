@@ -10,7 +10,7 @@ import CoreData
 import SDWebImageSwiftUI
 
 class DataProperty: ObservableObject {
-    @Published var img: String = ""
+    @Published var url: String = ""
     @Published var naviTitle: String = ""
     @Published var naviButtonTitle = ""
     @Published var title: String = ""
@@ -27,13 +27,16 @@ class DataProperty: ObservableObject {
 
 struct TypeBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @State var setImage:UIImage?
     @Environment(\.presentationMode) var presentationMode
     @StateObject var dataProperty = DataProperty()
+    @StateObject var manualInput = ManualInput()
+    
+    @State private var setImage: UIImage?
+    @State private var coverImage: Image = Image(systemName: "nosign")
     
     let naviTextItems: [String] = ["追加","編集"]
-    
-    var argumentImg: String
+    var argumentURL: String?
+    var argumentImage: Data?
     var argumentNaviTitle: Int
     let argumentNaviButtonText: String
     var argumentTitle: String
@@ -47,9 +50,10 @@ struct TypeBookDataView: View {
     var argumentFavorite: Int
     var argumentUnfavorite: Int
     
+    
     // Segue BarcodeScannerView
     init(navi: Int){
-        argumentImg = ""
+        argumentURL = ""
         argumentNaviTitle = navi
         argumentNaviButtonText = "追加"
         argumentTitle = ""
@@ -66,7 +70,7 @@ struct TypeBookDataView: View {
     
     // Segue ResualSearchBookDataView
     init(imageURL: String, title: String, author: String, regularPrice: String, stateOfControl: Int){
-        argumentImg = imageURL
+        argumentURL = imageURL
         argumentNaviTitle = 0
         argumentNaviButtonText = "追加"
         argumentTitle = title
@@ -82,8 +86,8 @@ struct TypeBookDataView: View {
     }
     
     // Segue ListManagementView
-    init(img: String, navi: Int, title: String, author: String, regularPrice: String, dateOfPurchase: Date, stateOfControl: Int, yourValue: String, memo: String, impressions: String, favorite: Int){
-        argumentImg = "" // binary dataに書き換える
+    init(img: Data, navi: Int, title: String, author: String, regularPrice: String, dateOfPurchase: Date, stateOfControl: Int, yourValue: String, memo: String, impressions: String, favorite: Int){
+        argumentImage = img
         argumentNaviTitle = navi
         argumentNaviButtonText = "更新"
         argumentTitle = title
@@ -103,24 +107,34 @@ struct TypeBookDataView: View {
         animation: .default)
     var items: FetchedResults<Books>
     
-    @State private var setUpVariable:Bool = false
-    @StateObject var manualInput = ManualInput()
-    @State var naviTitle:String = ""
-    
     var body: some View {
         Form {
             Section(header: Text("表紙")){
                 HStack {
                     Spacer()
-                    if(dataProperty.img.count != 0){
-                        WebImage(url: URL(string: dataProperty.img)!)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 200, height: 200, alignment: .center)
-                    }else{
-                        LocalImageView(inputImage: $setImage)
-                            .frame(width: 200, height: 200, alignment: .center)
-                    }
+                    NavigationLink(
+                        destination:
+                            ImagePicker(image: self.$setImage)
+                            .navigationBarHidden(true)
+                            .onDisappear(perform: {
+                                loadImage() // coverImageを更新
+                            })
+                        ,
+                        label: {
+                            Group {
+                                if(dataProperty.url.count != 0){
+                                    WebImage(url: URL(string: dataProperty.url)!)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                                }else{
+                                    coverImage
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                                }
+                            }
+                        })
                     Spacer()
                 }
                 TextField("本のタイトルを入力してください", text: $dataProperty.title)
@@ -190,6 +204,7 @@ struct TypeBookDataView: View {
                     }else{
                         addItem()
                     }
+
                     self.presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text(dataProperty.naviButtonTitle)
@@ -217,16 +232,23 @@ struct TypeBookDataView: View {
                 })
         )
         .onAppear(perform: {
-            if(setUpVariable != true){
+            if(dataProperty.naviTitle.count == 0){
                 InitializerOfPropertyView()
             }
-            setUpVariable = true
         })
     }
     
+    private func loadImage() {
+        guard let setImage = setImage else { return }
+        self.coverImage = Image(uiImage: setImage)
+    }
     
     private func InitializerOfPropertyView(){
-        dataProperty.img = argumentImg
+        if(argumentURL != nil){
+            dataProperty.url = argumentURL ?? ""
+        }else{
+            coverImage = Image(uiImage: UIImage(data: argumentImage ?? .init(count:0))!)
+        }
         dataProperty.naviTitle = naviTextItems[argumentNaviTitle]
         dataProperty.naviButtonTitle = argumentNaviButtonText
         dataProperty.title = argumentTitle
@@ -247,7 +269,7 @@ struct TypeBookDataView: View {
             var pickedImage = setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
 
             if pickedImage == nil { // 画像が選択されていない場合
-                pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
+                pickedImage = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
             }
             newItem.img = pickedImage!
             newItem.title = dataProperty.title
@@ -259,6 +281,7 @@ struct TypeBookDataView: View {
             newItem.impressions =  dataProperty.impressions
             newItem.favorite = Int16(dataProperty.favorite)
             newItem.yourValue = dataSetMoney(setMoney: dataProperty.yourValue)
+            
             do {
                 try viewContext.save()
             } catch {
@@ -274,7 +297,7 @@ struct TypeBookDataView: View {
         var pickedImage = setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
 
         if pickedImage == nil { // 画像が選択されていない場合
-            pickedImage = UIImage(imageLiteralResourceName: "sea").jpegData(compressionQuality: 0.80)
+            pickedImage = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
         }
         do {
             let editItem = try self.viewContext.fetch(fetchRequest).first
@@ -294,9 +317,40 @@ struct TypeBookDataView: View {
             print(error)
         }
     }
+}
 
-    
-    
+struct ImagePicker: UIViewControllerRepresentable {
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var image: UIImage?
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let uiImage = info[.originalImage] as? UIImage {
+                parent.image = uiImage
+            }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {
+
+    }
 }
 
 func replaceVariable(title:String, author:String, regularPrice:String, dateOfPurchase:Date, stateOfControl:Int ,yourValue:String, memo:String, impressions:String, favorite:Int) -> (String,String,String,Date,Int,String,String,String,Int,Int){

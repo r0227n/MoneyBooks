@@ -13,8 +13,6 @@ struct ListManagementView: View {
         animation: .default)
     var items: FetchedResults<Books>
     @Environment(\.managedObjectContext) private var viewContext
-    @State private var image:Data = .init(count:0)
-
     
     @Environment(\.presentationMode) var presentationMode
     @Binding var numberOfBooks:Int
@@ -25,10 +23,11 @@ struct ListManagementView: View {
     @StateObject var manualInput = ManualInput()
     
     @State var argListNaviTitle:String = "編集画面"
+    @State var argImageData:Data = .init(count:0)
     
     var body: some View {
         NavigationLink(
-            destination: TypeBookDataView(img: "",
+            destination: TypeBookDataView(img: argImageData,
                                           navi: 1,
                                           title: manualInput.title,
                                           author: manualInput.author,
@@ -45,13 +44,15 @@ struct ListManagementView: View {
             ForEach(items) { item in
                 if(item.stateOfControl == numberOfBooks){
                     Button(action: {
+                        self.argImageData = item.img!
+                        print("load", argImageData)
                         // CoreDataからデータを引き抜き、変数に入れ替える
                         (manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite)
                             = readCoreData(title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
                         bottomBarHidden.toggle()
                     }, label: {
                         HStack {
-                            Image(uiImage: UIImage(data: item.img ?? self.image)!)
+                            Image(uiImage: UIImage(data: item.img ?? .init(count:0))!)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 50, height:50)
