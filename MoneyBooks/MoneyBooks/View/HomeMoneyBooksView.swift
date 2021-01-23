@@ -17,8 +17,13 @@ import SwiftUI
 class ManagementInformation : ObservableObject {
     @Published var regular:Int = 0
     @Published var your:Int = 0
-    @Published var numberOfDisplay = [0,0,0]
-    @Published var upDataSignal:Bool = false
+    @Published var numberOfDisplay: [Int] = [0,0,0]
+
+    func updateNumber(){
+        regular = 0
+        your = 0
+        numberOfDisplay = [0,0,0]
+    }
 }
 
 struct HomeMoneyBooksView: View {
@@ -37,8 +42,7 @@ struct HomeMoneyBooksView: View {
         NavigationView {
             VStack{ // VStack(HStack)でまとめないと何故か表示されない
                 NavigationLink(destination: ListManagementView(numberOfBooks: $managementNumber,
-                                                               listViewTitle: $manualInput.managementStatus[managementNumber],
-                                                               openBarcodeView: $openBarcodeScannerView),
+                                                               listViewTitle: $manualInput.managementStatus[managementNumber]),
                                isActive: $openManagmentList, label: {})
                 managmentList
                 Spacer()
@@ -54,31 +58,26 @@ struct HomeMoneyBooksView: View {
                     Spacer()
                 }
             })
+            .onAppear(perform: {
+                resetNumber()
+            })
+            .sheet(isPresented: $openBarcodeScannerView,
+                   onDismiss: resetNumber,
+                   content: {
+                    BarcodeScannerView(openCollectionViewNumber: $managementNumber,
+                                       openBarCode: $openBarcodeScannerView)
+            })
         }
-        .onAppear(perform: {
-            //起動時、カテゴリー別の管理数をカウントする
-            items.forEach {
-                managementInformation.regular += Int($0.regularPrice)
-                managementInformation.your += Int($0.yourValue)
-                managementInformation.numberOfDisplay[Int($0.stateOfControl)] += 1
-            }
-        })
-        .onChange(of: managementInformation.upDataSignal, perform: { update in
-            // managmentListの値を更新
-            managementInformation.regular = 0
-            managementInformation.your = 0
-            managementInformation.numberOfDisplay = [0,0,0]
-            items.forEach {
-                managementInformation.regular += Int($0.regularPrice)
-                managementInformation.your += Int($0.yourValue)
-                managementInformation.numberOfDisplay[Int($0.stateOfControl)] += 1
-            }
-        })
-        .sheet(isPresented: $openBarcodeScannerView) {
-            BarcodeScannerView(openCollectionViewNumber: $managementNumber,
-                               openBarCode: $openBarcodeScannerView)
+    }
+    
+    public func resetNumber(){
+        managementInformation.updateNumber()
+        //起動時、カテゴリー別の管理数をカウントする
+        items.forEach {
+            managementInformation.regular += Int($0.regularPrice)
+            managementInformation.your += Int($0.yourValue)
+            managementInformation.numberOfDisplay[Int($0.stateOfControl)] += 1
         }
-        
     }
     
     

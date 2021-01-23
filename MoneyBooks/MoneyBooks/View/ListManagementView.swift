@@ -18,7 +18,7 @@ struct ListManagementView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var numberOfBooks:Int
     @Binding var listViewTitle:String
-    @Binding var openBarcodeView:Bool
+    @State var openBarcodeView:Bool = false
     @State var bottomBarHidden:Bool = false
     @StateObject var manualInput = ManualInput()
     
@@ -46,8 +46,8 @@ struct ListManagementView: View {
                 if(item.stateOfControl == numberOfBooks){
                     Button(action: {
                         // CoreDataからデータを引き抜き、変数に入れ替える
-                        (coreDataImage, coreDataID, manualInput.url, manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
-                            = readCoreData(image: item.img!, id: item.id!, url: item.webImg ?? "", title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
+                        (coreDataImage, coreDataID, manualInput.url, manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.stateOfControl ,manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
+                            = readCoreData(image: item.img!, id: item.id!, url: item.webImg ?? "", title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, stateOfController: item.stateOfControl, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
                         bottomBarHidden.toggle()
                     }, label: {
                         HStack {
@@ -101,6 +101,14 @@ struct ListManagementView: View {
                 Spacer()
             }
         })
+        .sheet(isPresented: $openBarcodeView,
+               content: {
+                BarcodeScannerView(openCollectionViewNumber: $numberOfBooks,
+                                   openBarCode: $openBarcodeView)
+                    .onAppear(perform: {
+                        print(numberOfBooks)
+                    })
+        })
         .gesture(
             DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
                 .onEnded({ swipe in // end time
@@ -112,8 +120,8 @@ struct ListManagementView: View {
     }
     
     
-    private func readCoreData(image: Data, id: UUID, url: String, title:String, author:String, dateOfPurchase:Date, regularPrice:Int16, yourValue:Int16, memo:String, impressions:String, favorite:Int16)
-    -> (Data, UUID, String, String,String,Date,String,String,String,String,Int){
+    private func readCoreData(image: Data, id: UUID, url: String, title:String, author:String, dateOfPurchase:Date, stateOfController: Int16, regularPrice:Int16, yourValue:Int16, memo:String, impressions:String, favorite:Int16)
+    -> (Data, UUID, String, String,String,Date,Int,String,String,String,String,Int){
         
         var convertRegular:String = ""
         var convertYour:String = ""
@@ -123,7 +131,7 @@ struct ListManagementView: View {
         if(yourValue > 0){
             convertYour = String(yourValue) + "円"
         }
-        return(image, id, url, title, author, dateOfPurchase, convertRegular, convertYour, memo, impressions, Int(favorite))
+        return(image, id, url, title, author, dateOfPurchase, Int(stateOfController), convertRegular, convertYour, memo, impressions, Int(favorite))
     }
 
     

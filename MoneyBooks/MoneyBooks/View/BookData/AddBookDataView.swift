@@ -25,28 +25,21 @@ struct AddBookDataView: View {
         Group {
             HStack {
                 Spacer()
-                NavigationLink(
-                    destination:
-                        ImagePicker(image: self.$dataProperty.setImage)
-                        .navigationBarHidden(true)
-                        .onDisappear(perform: {
-                            (dataProperty.coverImage, imageURL) = loadImage(loadImage: dataProperty.setImage, url: imageURL) // coverImageを更新
-                        })
-                    ,
-                    label: {
-                        Group {
-                            if(imageURL.count != 0){
-                                WebImage(url: URL(string: imageURL)!)
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                            }else{
-                                dataProperty.coverImage
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                            }
-                        }
-                    })
+                Button(action: {
+                    UIApplication.shared.endEditing()
+                    withAnimation {
+                        dataProperty.isShowMenu.toggle()
+                    }
+                }, label: {
+                    if(imageURL.count != 0){
+                        WebImage(url: URL(string: imageURL)!)
+                    }else{
+                        dataProperty.coverImage
+                            .resizable()
+                    }
+                })
+                .scaledToFit()
+                .frame(width: 200, height: 200, alignment: .center)
                 Spacer()
             }
             TextField("本のタイトルを入力してください", text: $title)
@@ -105,17 +98,29 @@ struct AddBookDataView: View {
     }
     
     var body: some View {
-        Form {
-            Section(header: Text("表紙")){
-                minimumLayout
-            }
-            Section(header: Text("メモ")){
-                TextEditor(text: $dataProperty.memo)
-            }
-            if(savePoint == 0){
-                readThroughSection
+        GeometryReader { geometry in
+            ZStack {
+                Form {
+                    Section(header: Text("表紙")){
+                        minimumLayout
+                    }
+                    Section(header: Text("メモ")){
+                        TextEditor(text: $dataProperty.memo)
+                    }
+                    if(savePoint == 0){
+                        readThroughSection
+                    }
+                }
+                MenuViewWithinSafeArea(isShowMenu: $dataProperty.isShowMenu, setImage: $dataProperty.setImage,
+                                       bottomSafeAreaInsets: (geometry.size.height + geometry.safeAreaInsets.bottom))
+                    .ignoresSafeArea(edges: .bottom)
             }
         }
+        .onChange(of: dataProperty.isShowMenu, perform: { value in
+            if(value != true){
+                (dataProperty.coverImage, imageURL) = loadImage(loadImage: dataProperty.setImage, url: imageURL) // coverImageを更新
+            }
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(Text(dataProperty.naviTitle))
         .toolbar(content: {

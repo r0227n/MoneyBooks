@@ -23,37 +23,31 @@ struct EditBookDataView: View {
     @Binding var impressions: String
     @Binding var favorite: Int
     
-    
     @FetchRequest(
         sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
         animation: .default)
     var items: FetchedResults<Books>
     
+    
     var minimumLayout: some View {
         Group {
             HStack {
                 Spacer()
-                NavigationLink(
-                    destination:
-                        ImagePicker(image: self.$dataProperty.setImage)
-                        .onDisappear(perform: {
-                            (imageData, imageURL) = updateData(loadImage: dataProperty.setImage, url: imageURL) // coverImageを更新
-                        })
-                    ,
-                    label: {
-                        Group {
-                            if(imageURL.count != 0){
-                                WebImage(url: URL(string: imageURL)!)
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                            }else{
-                                Image(uiImage: UIImage(data: imageData)!)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                            }
-                        }
-                    })
+                Button(action: {
+                    UIApplication.shared.endEditing()
+                    withAnimation {
+                        dataProperty.isShowMenu.toggle()
+                    }
+                }, label: {
+                    if(imageURL.count != 0){
+                        WebImage(url: URL(string: imageURL)!)
+                    }else{
+                        Image(uiImage: UIImage(data: imageData)!)
+                            .resizable()
+                    }
+                })
+                .scaledToFit()
+                .frame(width: 200, height: 200, alignment: .center)
                 Spacer()
             }
             TextField("本のタイトルを入力してください", text: $title)
@@ -113,18 +107,30 @@ struct EditBookDataView: View {
     }
     
     var body: some View {
-        Form {
-            Section(header: Text("表紙")){
-                minimumLayout
-            }
-            Section(header: Text("メモ")){
-                TextEditor(text: $memo)
-            }
- 
-            if(stateOfControl == 0){
-                readThroughSection
+        GeometryReader { geometry in
+            ZStack {
+                Form {
+                    Section(header: Text("表紙")){
+                        minimumLayout
+                    }
+                    Section(header: Text("メモ")){
+                        TextEditor(text: $memo)
+                    }
+         
+                    if(stateOfControl == 0){
+                        readThroughSection
+                    }
+                }
+                MenuViewWithinSafeArea(isShowMenu: $dataProperty.isShowMenu, setImage: $dataProperty.setImage,
+                                       bottomSafeAreaInsets: (geometry.size.height + geometry.safeAreaInsets.bottom))
+                    .ignoresSafeArea(edges: .bottom)
             }
         }
+        .onChange(of: dataProperty.isShowMenu, perform: { value in
+            if(value != true){
+                (imageData, imageURL) = updateData(loadImage: dataProperty.setImage, url: imageURL)
+            }
+        })
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(Text("編集"))
         .toolbar(content: {
@@ -193,4 +199,6 @@ struct EditBookDataView: View {
         self.presentationMode.wrappedValue.dismiss()
     }
 }
+
+
 

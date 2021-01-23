@@ -16,10 +16,9 @@ struct BarcodeScannerView: View {
     @StateObject var manualInput = ManualInput()
     @State var argTitle: String = "手入力"
     @State var addTypBookDataView: Bool = false
+    
     @Binding var openCollectionViewNumber: Int
-    
     @Binding var openBarCode: Bool
-    
     @State var pushNaviButton: Bool = false
     
     var body: some View {
@@ -41,7 +40,7 @@ struct BarcodeScannerView: View {
                                                  title: $manualInput.title,
                                                  author: $manualInput.author,
                                                  regular: $manualInput.regularPrice,
-                                                 savePoint: $manualInput.stateOfControl,
+                                                 savePoint: $openCollectionViewNumber,
                                                  openAdd: $openBarCode),
                     isActive: $pushNaviButton,
                     label: {})

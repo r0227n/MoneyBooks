@@ -22,6 +22,7 @@
 		2A85564925BBB040004F5455 /* AddBookDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85564825BBB040004F5455 /* AddBookDataView.swift */; };
 		2A85564D25BBE887004F5455 /* EditBookDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85564C25BBE887004F5455 /* EditBookDataView.swift */; };
 		2A85565225BC031F004F5455 /* BookDataItemsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85565125BC031F004F5455 /* BookDataItemsViewModel.swift */; };
+		2A8A259225BC93F000511A35 /* ImagePickerComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8A259125BC93F000511A35 /* ImagePickerComponents.swift */; };
 		2ACD014825A2DCA90006C19A /* HomeMoneyBooksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */; };
 		2ACD014B25A361B70006C19A /* ListManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD014A25A361B60006C19A /* ListManagementView.swift */; };
 /* End PBXBuildFile section */
@@ -43,6 +44,7 @@
 		2A85564825BBB040004F5455 /* AddBookDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBookDataView.swift; sourceTree = "<group>"; };
 		2A85564C25BBE887004F5455 /* EditBookDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBookDataView.swift; sourceTree = "<group>"; };
 		2A85565125BC031F004F5455 /* BookDataItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDataItemsViewModel.swift; sourceTree = "<group>"; };
+		2A8A259125BC93F000511A35 /* ImagePickerComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerComponents.swift; sourceTree = "<group>"; };
 		2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMoneyBooksView.swift; sourceTree = "<group>"; };
 		2ACD014A25A361B60006C19A /* ListManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListManagementView.swift; sourceTree = "<group>"; };
 		3F424B48F8D3AC380C5B6C2C /* Pods-MoneyBooks.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoneyBooks.debug.xcconfig"; path = "Target Support Files/Pods-MoneyBooks/Pods-MoneyBooks.debug.xcconfig"; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 			children = (
 				2A85564C25BBE887004F5455 /* EditBookDataView.swift */,
 				2A85564825BBB040004F5455 /* AddBookDataView.swift */,
+				2A8A259125BC93F000511A35 /* ImagePickerComponents.swift */,
 			);
 			path = BookData;
 			sourceTree = "<group>";
@@ -290,6 +293,7 @@
 				2A4E8F9425834B4A00C0C24D /* Persistence.swift in Sources */,
 				2A4E8F9725834B4A00C0C24D /* MoneyBooks.xcdatamodeld in Sources */,
 				2A663AC925834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift in Sources */,
+				2A8A259225BC93F000511A35 /* ImagePickerComponents.swift in Sources */,
 				2A85564D25BBE887004F5455 /* EditBookDataView.swift in Sources */,
 				2A244AD1258366440074F2F1 /* ScannerView.swift in Sources */,
 				2A244ADB2583667B0074F2F1 /* BarcodeScannerViewModel.swift in Sources */,
