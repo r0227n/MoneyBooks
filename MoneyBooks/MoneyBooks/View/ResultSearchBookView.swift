@@ -10,6 +10,7 @@ import SDWebImageSwiftUI
 import Foundation
 
 class ManualInput : ObservableObject {
+    @Published var url: String = ""
     @Published var title: String = ""
     @Published var author: String = ""
     @Published var dateOfPurchase = Date()
@@ -20,7 +21,6 @@ class ManualInput : ObservableObject {
     @Published var memo: String = ""
     @Published var impressions: String = ""
     @Published var favorite: Int = 1
-    @Published var unfavorite: Int = 4
     
     var managementStatus = ["読破", "積み本", "欲しい本"]
 }
@@ -32,20 +32,22 @@ struct ResultSearchBookView: View {
     
     @Environment(\.presentationMode) var presentationMode
     @StateObject var manualInput = ManualInput()
-    @State var imgURL:String = ""
+    //@State var imgURL:String = ""
     @Binding var argResultNaviTitle:String
     @Binding var request:String
     @Binding var price:String
     @Binding var storage:Int
     
+    @Binding var openResult: Bool
+    
     @State var addTypeBookData:Bool = false
     var body : some View{
         NavigationLink(
-            destination: TypeBookDataView(imageURL: imgURL,
-                                          title: manualInput.title,
-                                          author: manualInput.author,
-                                          regularPrice: manualInput.regularPrice,
-                                          stateOfControl: manualInput.stateOfControl),
+            destination: AddBookDataView(imageURL: $manualInput.url,
+                                         title: $manualInput.title,
+                                         author: $manualInput.author,
+                                         regular: $manualInput.regularPrice,
+                                         savePoint: $storage),
             isActive: $addTypeBookData,
             label: {})
         List(Books.data){i in
@@ -77,17 +79,23 @@ struct ResultSearchBookView: View {
                                       memo: "",
                                       impressions: "",
                                       favorite: 1)
-                imgURL = i.imgUrl
+                //imgURL = i.imgUrl
+                manualInput.url = i.imgUrl
                 addTypeBookData.toggle()
             }
         }
         .onAppear(perform: {
+            print(addTypeBookData, manualInput.title.count)
+            
+            if((addTypeBookData != false) && (manualInput.title.count > 0)){
+                openResult.toggle()
+            }
+//            if{
+//                self.presentationMode.wrappedValue.dismiss()
+//            }
             print("SearchNow", request)
             Books.data = .init() // 検索結果を初期化
             Books.getData(request: request)
-            if(argResultNaviTitle.count < 1){
-                self.presentationMode.wrappedValue.dismiss()
-            }
         })
         .navigationTitle("検索結果")
         .navigationBarTitleDisplayMode(.inline)

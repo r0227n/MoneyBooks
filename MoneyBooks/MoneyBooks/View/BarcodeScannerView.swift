@@ -19,9 +19,13 @@ struct BarcodeScannerView: View {
     @Binding var openCollectionViewNumber: Int
     @Binding var collectionCountUp: Bool
     
+    @Binding var openBarCode: Bool
+    
+    @State var pushNaviButton: Bool = false
+    
     var body: some View {
         NavigationView {
-            VStack {
+            ZStack {
                 ScannerView(scannedCode: $scannedCode)
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
@@ -29,9 +33,19 @@ struct BarcodeScannerView: View {
                     destination: ResultSearchBookView(argResultNaviTitle: $argTitle,
                                                       request: $isbn,
                                                       price: $manualInput.regularPrice,
-                                                      storage: $openCollectionViewNumber),
+                                                      storage: $openCollectionViewNumber,
+                                                      openResult: $openBarCode),
                     isActive: $codeReadingCompleted,
                     label: { })
+                
+                NavigationLink(
+                    destination: AddBookDataView(imageURL: $manualInput.url,
+                                                 title: $manualInput.title,
+                                                 author: $manualInput.author,
+                                                 regular: $manualInput.regularPrice,
+                                                 savePoint: $manualInput.stateOfControl),
+                    isActive: $pushNaviButton,
+                    label: {})
                 
             }
             .onChange(of: scannedCode, perform: { number in
@@ -58,11 +72,11 @@ struct BarcodeScannerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
-                    NavigationLink(
-                        destination: TypeBookDataView(navi: 0),
-                        label: {
-                            Text(argTitle)
-                        })
+                    Button(action: {
+                        pushNaviButton.toggle()
+                    }, label: {
+                        Text("手入力画面")
+                    })
                 }
                 ToolbarItem(placement: .cancellationAction){
                     Button(action: {

@@ -67,7 +67,8 @@ struct HomeMoneyBooksView: View {
         })
         .sheet(isPresented: $openBarcodeScannerView) {
             BarcodeScannerView(openCollectionViewNumber: $managementNumber,
-                               collectionCountUp: $managementInformation.upDataSignal)
+                               collectionCountUp: $managementInformation.upDataSignal,
+                               openBarCode: $openBarcodeScannerView)
         }
     }
     

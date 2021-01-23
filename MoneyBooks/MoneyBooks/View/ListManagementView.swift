@@ -30,19 +30,18 @@ struct ListManagementView: View {
     
     var body: some View {
         NavigationLink(
-            destination: TypeBookDataView(img: argImageData,
-                                          imageURL: imageURL,
-                                          navi: 1,
-                                          title: manualInput.title,
-                                          author: manualInput.author,
-                                          regularPrice: manualInput.regularPrice,
-                                          dateOfPurchase: manualInput.dateOfPurchase,
-                                          stateOfControl: numberOfBooks,
-                                          yourValue: manualInput.yourValue,
-                                          memo: manualInput.memo,
-                                          impressions: manualInput.impressions,
-                                          favorite: manualInput.favorite,
-                                          id: coreDataID),
+            destination: EditBookDataView(id: $coreDataID,
+                                          imageData: $argImageData,
+                                          imageURL: $imageURL,
+                                          title: $manualInput.title,
+                                          author: $manualInput.author,
+                                          regularPrice: $manualInput.regularPrice,
+                                          dateOfPurchase: $manualInput.dateOfPurchase,
+                                          stateOfControl: $manualInput.stateOfControl,
+                                          yourValue: $manualInput.yourValue,
+                                          memo: $manualInput.memo,
+                                          impressions: $manualInput.impressions,
+                                          favorite: $manualInput.favorite),
             isActive: $bottomBarHidden,
             label: {})
         List{
@@ -65,7 +64,7 @@ struct ListManagementView: View {
                                     .frame(width: 50, height:50)
                                     //.padding(20)
                             }else{
-                                Image(uiImage: UIImage(data: item.img ?? .init(count:0))!)
+                                Image(uiImage: (UIImage(data: item.img ?? .init(count:0)) ?? UIImage(systemName: "nosign"))!)
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 50, height:50)
