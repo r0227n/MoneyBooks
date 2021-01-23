@@ -69,18 +69,10 @@ struct ResultSearchBookView: View {
                 }
             }
             .onTapGesture {
-                (manualInput.title, manualInput.author, manualInput.regularPrice, manualInput.dateOfPurchase,manualInput.stateOfControl,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
-                    = replaceVariable(title: i.title,
-                                      author: i.authors,
-                                      regularPrice: checkerYen(typeMoney: price),
-                                      dateOfPurchase: Date(),
-                                      stateOfControl: storage,
-                                      yourValue: "",
-                                      memo: "",
-                                      impressions: "",
-                                      favorite: 1)
-                //imgURL = i.imgUrl
                 manualInput.url = i.imgUrl
+                manualInput.title = i.title
+                manualInput.author = i.authors
+                manualInput.regularPrice = DataProperty().checkerYen(typeMoney: price)
                 addTypeBookData.toggle()
             }
         }
@@ -90,9 +82,6 @@ struct ResultSearchBookView: View {
             if((addTypeBookData != false) && (manualInput.title.count > 0)){
                 openResult.toggle()
             }
-//            if{
-//                self.presentationMode.wrappedValue.dismiss()
-//            }
             print("SearchNow", request)
             Books.data = .init() // 検索結果を初期化
             Books.getData(request: request)

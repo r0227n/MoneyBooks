@@ -21,6 +21,7 @@
 		2A663AC925834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A663AC825834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift */; };
 		2A85564925BBB040004F5455 /* AddBookDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85564825BBB040004F5455 /* AddBookDataView.swift */; };
 		2A85564D25BBE887004F5455 /* EditBookDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85564C25BBE887004F5455 /* EditBookDataView.swift */; };
+		2A85565225BC031F004F5455 /* BookDataItemsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85565125BC031F004F5455 /* BookDataItemsViewModel.swift */; };
 		2ACD014825A2DCA90006C19A /* HomeMoneyBooksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */; };
 		2ACD014B25A361B70006C19A /* ListManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD014A25A361B60006C19A /* ListManagementView.swift */; };
 /* End PBXBuildFile section */
@@ -41,6 +42,7 @@
 		2A663AC825834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleBooksAPIViewModel.swift; sourceTree = "<group>"; };
 		2A85564825BBB040004F5455 /* AddBookDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBookDataView.swift; sourceTree = "<group>"; };
 		2A85564C25BBE887004F5455 /* EditBookDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBookDataView.swift; sourceTree = "<group>"; };
+		2A85565125BC031F004F5455 /* BookDataItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDataItemsViewModel.swift; sourceTree = "<group>"; };
 		2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMoneyBooksView.swift; sourceTree = "<group>"; };
 		2ACD014A25A361B60006C19A /* ListManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListManagementView.swift; sourceTree = "<group>"; };
 		3F424B48F8D3AC380C5B6C2C /* Pods-MoneyBooks.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoneyBooks.debug.xcconfig"; path = "Target Support Files/Pods-MoneyBooks/Pods-MoneyBooks.debug.xcconfig"; sourceTree = "<group>"; };
@@ -121,10 +123,9 @@
 		2A663AC625834E9900EBBCEF /* View */ = {
 			isa = PBXGroup;
 			children = (
+				2A85565025BC02E9004F5455 /* BookData */,
 				2ACD014725A2DCA90006C19A /* HomeMoneyBooksView.swift */,
 				2A244AD7258366700074F2F1 /* BarcodeScannerView.swift */,
-				2A85564C25BBE887004F5455 /* EditBookDataView.swift */,
-				2A85564825BBB040004F5455 /* AddBookDataView.swift */,
 				2A244ACF2583662A0074F2F1 /* UIKitComponents */,
 				2A244ADD258437390074F2F1 /* ResultSearchBookView.swift */,
 				2ACD014A25A361B60006C19A /* ListManagementView.swift */,
@@ -135,10 +136,20 @@
 		2A663AC725834F5800EBBCEF /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				2A85565125BC031F004F5455 /* BookDataItemsViewModel.swift */,
 				2A244ADA2583667B0074F2F1 /* BarcodeScannerViewModel.swift */,
 				2A663AC825834F8C00EBBCEF /* GoogleBooksAPIViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		2A85565025BC02E9004F5455 /* BookData */ = {
+			isa = PBXGroup;
+			children = (
+				2A85564C25BBE887004F5455 /* EditBookDataView.swift */,
+				2A85564825BBB040004F5455 /* AddBookDataView.swift */,
+			);
+			path = BookData;
 			sourceTree = "<group>";
 		};
 		561A7D2BBFD12763CA2461E8 /* Pods */ = {
@@ -272,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2ACD014825A2DCA90006C19A /* HomeMoneyBooksView.swift in Sources */,
+				2A85565225BC031F004F5455 /* BookDataItemsViewModel.swift in Sources */,
 				2A244AD8258366700074F2F1 /* BarcodeScannerView.swift in Sources */,
 				2A244AD4258366490074F2F1 /* ScannerViewController.swift in Sources */,
 				2ACD014B25A361B70006C19A /* ListManagementView.swift in Sources */,

@@ -1,28 +1,19 @@
-
-
 import SwiftUI
 import CoreData
 import SDWebImageSwiftUI
 
-struct EditBookDataView: View {
+// Segue ResualSearchBookDataView&BarcodeScannerView
+struct AddBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.presentationMode) var presentationMode
     @StateObject var dataProperty = DataProperty()
     @StateObject var manualInput = ManualInput()
     
-    @Binding var id: UUID
-    @Binding var imageData: Data
     @Binding var imageURL: String
     @Binding var title: String
     @Binding var author: String
-    @Binding var regularPrice: String
-    @Binding var dateOfPurchase: Date
-    @Binding var stateOfControl: Int
-    @Binding var yourValue: String
-    @Binding var memo: String
-    @Binding var impressions: String
-    @Binding var favorite: Int
-    
+    @Binding var regular: String
+    @Binding var savePoint: Int
     
     @FetchRequest(
         sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
@@ -38,7 +29,7 @@ struct EditBookDataView: View {
                         ImagePicker(image: self.$dataProperty.setImage)
                         .navigationBarHidden(true)
                         .onDisappear(perform: {
-                            (imageData, imageURL) = updateData(loadImage: dataProperty.setImage, url: imageURL) // coverImageを更新
+                            (dataProperty.coverImage, imageURL) = loadImage(loadImage: dataProperty.setImage, url: imageURL) // coverImageを更新
                         })
                     ,
                     label: {
@@ -48,7 +39,7 @@ struct EditBookDataView: View {
                                     .scaledToFit()
                                     .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
                             }else{
-                                Image(uiImage: UIImage(data: imageData)!)
+                                dataProperty.coverImage
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
@@ -60,16 +51,15 @@ struct EditBookDataView: View {
             TextField("本のタイトルを入力してください", text: $title)
             TextField("作者を入力してください", text: $author)
 
-            TextField("定価を入力してください", text: $regularPrice,
+            TextField("定価を入力してください", text: $regular,
                       onEditingChanged: { begin in
-                        regularPrice = checkerYen(typeMoney: regularPrice)
-
+                        regular = dataProperty.checkerYen(typeMoney: regular)
                       })
                 .keyboardType(.numbersAndPunctuation)
 
-            DatePicker("購入日", selection: $dateOfPurchase, displayedComponents: .date)
+            DatePicker("購入日", selection: $dataProperty.dateOfPurchase, displayedComponents: .date)
 
-            Picker(selection: $stateOfControl, label: Text("管理先を指定してください")) {
+            Picker(selection: $savePoint, label: Text("管理先を指定してください")) {
                 ForEach(0 ..< manualInput.managementStatus.count) { num in
                     Text(manualInput.managementStatus[num])
                 }
@@ -81,14 +71,14 @@ struct EditBookDataView: View {
     var readThroughSection: some View {
         Group {
             Section(header: Text("感想")){
-                TextEditor(text: $impressions)
+                TextEditor(text: $dataProperty.impressions)
             }
             Section(header: Text("あなたにとってこの本は？")){
                 HStack(spacing: 10) {
-                    ForEach(0..<favorite, id:\.self){ yellow in
+                    ForEach(0..<dataProperty.favorite, id:\.self){ yellow in
                         Image(systemName: "star.fill")
                             .onTapGesture(perform: {
-                                favorite = yellow + 1
+                                dataProperty.favorite = yellow + 1
                                 dataProperty.unfavorite = 4 - yellow
                             })
                             .foregroundColor(.yellow)
@@ -97,16 +87,16 @@ struct EditBookDataView: View {
                     ForEach(0..<dataProperty.unfavorite, id: \.self){ gray in
                         Image(systemName: "star.fill")
                             .onTapGesture(perform: {
-                                favorite += (gray + 1)
+                                dataProperty.favorite += (gray + 1)
                                 dataProperty.unfavorite -= (gray + 1)
                             })
                             .padding()
                             .foregroundColor(.gray)
                     }
                 }
-                TextField("どれぐらいの価値ですか？", text: $yourValue,
+                TextField("どれぐらいの価値ですか？", text: $dataProperty.yourValue,
                           onEditingChanged: { begin in
-                            yourValue = checkerYen(typeMoney: yourValue)
+                            dataProperty.yourValue = dataProperty.checkerYen(typeMoney: dataProperty.yourValue)
                           })
                     .keyboardType(.numbersAndPunctuation)
             }
@@ -119,21 +109,20 @@ struct EditBookDataView: View {
                 minimumLayout
             }
             Section(header: Text("メモ")){
-                TextEditor(text: $memo)
+                TextEditor(text: $dataProperty.memo)
             }
- 
-            if(stateOfControl == 0){
+            if(savePoint == 0){
                 readThroughSection
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(Text("編集"))
+        .navigationBarTitle(Text(dataProperty.naviTitle))
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
-                    updateItem()
+                    addItem()
                 }, label: {
-                    Text("更新")
+                    Text("追加")
                 })
             }
             ToolbarItem(placement: .cancellationAction){
@@ -157,42 +146,47 @@ struct EditBookDataView: View {
                     }
                 })
         )
-        .onAppear(perform: {
-            
-            dataProperty.unfavorite = 5 - favorite
-        })
     }
-    func updateData(loadImage: UIImage?, url: String) -> (Data, String) {
+    
+    private func loadImage(loadImage: UIImage?, url: String) -> (Image, String) {
         if(loadImage != nil){
             let deleteOfURL = ""
-            let convertData: Data = (loadImage?.jpegData(compressionQuality: 0.80))!
-            return (convertData, deleteOfURL)
+            return (Image(uiImage: loadImage!), deleteOfURL)
         }else{
-            return (imageData, url)
+            return (Image(systemName: "nosigin"), url)
         }
     }
-    func updateItem() {
-        let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
-        fetchRequest.predicate = NSPredicate.init(format: "id=%@", id as CVarArg)
-        do {
-            let editItem = try self.viewContext.fetch(fetchRequest).first
-            editItem?.id = id
-            editItem?.webImg = imageURL
-            editItem?.img = imageData
-            editItem?.title = title
-            editItem?.author =  author
-            editItem?.regularPrice = dataSetMoney(setMoney: regularPrice)
-            editItem?.dateOfPurchase = dateOfPurchase
-            editItem?.stateOfControl = Int16(stateOfControl)
-            editItem?.memo = memo
-            editItem?.impressions =  impressions
-            editItem?.favorite = Int16(favorite)
-            editItem?.yourValue = dataSetMoney(setMoney: yourValue)
-            try self.viewContext.save()
-        } catch {
-            print(error)
+    
+    private func addItem() {
+        withAnimation {
+            let newItem = MoneyBooks.Books(context: viewContext)
+            var pickedImage = dataProperty.setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
+
+            if pickedImage == nil { // 画像が選択されていない場合
+                pickedImage = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
+            }
+            newItem.id = UUID()
+            newItem.webImg = imageURL
+            newItem.img = pickedImage!
+            newItem.title = title
+            newItem.author =  author
+            newItem.regularPrice = dataProperty.dataSetMoney(setMoney: regular)
+            newItem.dateOfPurchase = dataProperty.dateOfPurchase
+            newItem.stateOfControl = Int16(savePoint)
+            newItem.memo = dataProperty.memo
+            newItem.impressions =  dataProperty.impressions
+            newItem.favorite = Int16(dataProperty.favorite)
+            newItem.yourValue = dataProperty.dataSetMoney(setMoney: dataProperty.yourValue)
+
+            do {
+                try viewContext.save()
+            } catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
         }
         self.presentationMode.wrappedValue.dismiss()
     }
 }
+
 

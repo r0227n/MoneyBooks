@@ -23,16 +23,14 @@ struct ListManagementView: View {
     @Binding var collectionCountDown: Bool
     @StateObject var manualInput = ManualInput()
     
-    @State var argListNaviTitle:String = "編集画面"
-    @State var argImageData:Data = .init(count:0)
+    @State var coreDataImage:Data = .init(count:0)
     @State var coreDataID: UUID = UUID()
-    @State var imageURL = ""
     
     var body: some View {
         NavigationLink(
             destination: EditBookDataView(id: $coreDataID,
-                                          imageData: $argImageData,
-                                          imageURL: $imageURL,
+                                          imageData: $coreDataImage,
+                                          imageURL: $manualInput.url,
                                           title: $manualInput.title,
                                           author: $manualInput.author,
                                           regularPrice: $manualInput.regularPrice,
@@ -48,12 +46,9 @@ struct ListManagementView: View {
             ForEach(items) { item in
                 if(item.stateOfControl == numberOfBooks){
                     Button(action: {
-                        self.argImageData = item.img!
-                        self.coreDataID = item.id!
-                        self.imageURL = item.webImg ?? ""
                         // CoreDataからデータを引き抜き、変数に入れ替える
-                        (manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
-                            = readCoreData(title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
+                        (coreDataImage, coreDataID, manualInput.url, manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
+                            = readCoreData(image: item.img!, id: item.id!, url: item.webImg ?? "", title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
                         bottomBarHidden.toggle()
                     }, label: {
                         HStack {
@@ -118,8 +113,8 @@ struct ListManagementView: View {
     }
     
     
-    private func readCoreData(title:String, author:String, dateOfPurchase:Date, regularPrice:Int16, yourValue:Int16, memo:String, impressions:String, favorite:Int16)
-    -> (String,String,Date,String,String,String,String,Int){
+    private func readCoreData(image: Data, id: UUID, url: String, title:String, author:String, dateOfPurchase:Date, regularPrice:Int16, yourValue:Int16, memo:String, impressions:String, favorite:Int16)
+    -> (Data, UUID, String, String,String,Date,String,String,String,String,Int){
         
         var convertRegular:String = ""
         var convertYour:String = ""
@@ -129,7 +124,7 @@ struct ListManagementView: View {
         if(yourValue > 0){
             convertYour = String(yourValue) + "円"
         }
-        return(title, author, dateOfPurchase, convertRegular, convertYour, memo, impressions, Int(favorite))
+        return(image, id, url, title, author, dateOfPurchase, convertRegular, convertYour, memo, impressions, Int(favorite))
     }
 
     
