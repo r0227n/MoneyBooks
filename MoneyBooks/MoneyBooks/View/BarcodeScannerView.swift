@@ -17,7 +17,6 @@ struct BarcodeScannerView: View {
     @State var argTitle: String = "手入力"
     @State var addTypBookDataView: Bool = false
     @Binding var openCollectionViewNumber: Int
-    @Binding var collectionCountUp: Bool
     
     @Binding var openBarCode: Bool
     
@@ -30,8 +29,7 @@ struct BarcodeScannerView: View {
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
                 NavigationLink(
-                    destination: ResultSearchBookView(argResultNaviTitle: $argTitle,
-                                                      request: $isbn,
+                    destination: ResultSearchBookView(request: $isbn,
                                                       price: $manualInput.regularPrice,
                                                       storage: $openCollectionViewNumber,
                                                       openResult: $openBarCode),
@@ -43,7 +41,8 @@ struct BarcodeScannerView: View {
                                                  title: $manualInput.title,
                                                  author: $manualInput.author,
                                                  regular: $manualInput.regularPrice,
-                                                 savePoint: $manualInput.stateOfControl),
+                                                 savePoint: $manualInput.stateOfControl,
+                                                 openAdd: $openBarCode),
                     isActive: $pushNaviButton,
                     label: {})
                 
@@ -60,12 +59,6 @@ struct BarcodeScannerView: View {
                     codeReadingCompleted = true
                 }else if(number.prefix(3) == "978"){  // BarCodeの上の段
                     isbn = number
-                }
-            })
-            .onAppear(perform: {
-                if(argTitle.count < 1){
-                    collectionCountUp.toggle()
-                    self.presentationMode.wrappedValue.dismiss()
                 }
             })
             .navigationTitle("新規追加")

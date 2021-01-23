@@ -19,8 +19,7 @@ struct ListManagementView: View {
     @Binding var numberOfBooks:Int
     @Binding var listViewTitle:String
     @Binding var openBarcodeView:Bool
-    @Binding var bottomBarHidden:Bool
-    @Binding var collectionCountDown: Bool
+    @State var bottomBarHidden:Bool = false
     @StateObject var manualInput = ManualInput()
     
     @State var coreDataImage:Data = .init(count:0)
@@ -129,7 +128,6 @@ struct ListManagementView: View {
 
     
     func deleteItems(offsets: IndexSet) {
-        collectionCountDown.toggle()
         withAnimation {
             offsets.map { items[$0] }.forEach(viewContext.delete)
             do {

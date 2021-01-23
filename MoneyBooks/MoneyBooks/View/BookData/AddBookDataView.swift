@@ -14,6 +14,7 @@ struct AddBookDataView: View {
     @Binding var author: String
     @Binding var regular: String
     @Binding var savePoint: Int
+    @Binding var openAdd: Bool
     
     @FetchRequest(
         sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
@@ -185,7 +186,7 @@ struct AddBookDataView: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
-        self.presentationMode.wrappedValue.dismiss()
+        openAdd.toggle()
     }
 }
 

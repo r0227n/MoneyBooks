@@ -32,12 +32,10 @@ struct ResultSearchBookView: View {
     
     @Environment(\.presentationMode) var presentationMode
     @StateObject var manualInput = ManualInput()
-    //@State var imgURL:String = ""
-    @Binding var argResultNaviTitle:String
+    
     @Binding var request:String
     @Binding var price:String
     @Binding var storage:Int
-    
     @Binding var openResult: Bool
     
     @State var addTypeBookData:Bool = false
@@ -47,7 +45,8 @@ struct ResultSearchBookView: View {
                                          title: $manualInput.title,
                                          author: $manualInput.author,
                                          regular: $manualInput.regularPrice,
-                                         savePoint: $storage),
+                                         savePoint: $storage,
+                                         openAdd: $openResult),
             isActive: $addTypeBookData,
             label: {})
         List(Books.data){i in
@@ -77,11 +76,6 @@ struct ResultSearchBookView: View {
             }
         }
         .onAppear(perform: {
-            print(addTypeBookData, manualInput.title.count)
-            
-            if((addTypeBookData != false) && (manualInput.title.count > 0)){
-                openResult.toggle()
-            }
             print("SearchNow", request)
             Books.data = .init() // 検索結果を初期化
             Books.getData(request: request)

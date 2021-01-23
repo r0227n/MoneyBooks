@@ -61,10 +61,16 @@ struct ImagePicker: UIViewControllerRepresentable {
             self.parent = parent
         }
 
+        // select image
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let uiImage = info[.originalImage] as? UIImage {
                 parent.image = uiImage
             }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+        
+        // push cansel button
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             parent.presentationMode.wrappedValue.dismiss()
         }
     }
@@ -82,6 +88,8 @@ struct ImagePicker: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {
     }
 }
+
+
 
 
 

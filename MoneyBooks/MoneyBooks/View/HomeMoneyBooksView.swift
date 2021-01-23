@@ -29,8 +29,7 @@ struct HomeMoneyBooksView: View {
 
     @StateObject var managementInformation = ManagementInformation()
     @StateObject var manualInput = ManualInput()
-    @Binding var viaBottomBar:Bool
-    @Binding var openBarcodeScannerView:Bool
+    @State var openBarcodeScannerView:Bool = false
     @State var managementNumber:Int = 1
     @State var openManagmentList:Bool = false
     
@@ -39,12 +38,22 @@ struct HomeMoneyBooksView: View {
             VStack{ // VStack(HStack)でまとめないと何故か表示されない
                 NavigationLink(destination: ListManagementView(numberOfBooks: $managementNumber,
                                                                listViewTitle: $manualInput.managementStatus[managementNumber],
-                                                               openBarcodeView: $openBarcodeScannerView,
-                                                               bottomBarHidden: $viaBottomBar,
-                                                               collectionCountDown: $managementInformation.upDataSignal),
+                                                               openBarcodeView: $openBarcodeScannerView),
                                isActive: $openManagmentList, label: {})
                 managmentList
+                Spacer()
             }
+            .toolbar(content: {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button(action: {
+                        openBarcodeScannerView.toggle()
+                    }, label: {
+                        Image(systemName: "plus.circle.fill")
+                        Text("書籍を追加")
+                    })
+                    Spacer()
+                }
+            })
         }
         .onAppear(perform: {
             //起動時、カテゴリー別の管理数をカウントする
@@ -67,9 +76,9 @@ struct HomeMoneyBooksView: View {
         })
         .sheet(isPresented: $openBarcodeScannerView) {
             BarcodeScannerView(openCollectionViewNumber: $managementNumber,
-                               collectionCountUp: $managementInformation.upDataSignal,
                                openBarCode: $openBarcodeScannerView)
         }
+        
     }
     
     

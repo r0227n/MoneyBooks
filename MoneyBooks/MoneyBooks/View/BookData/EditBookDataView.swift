@@ -36,7 +36,6 @@ struct EditBookDataView: View {
                 NavigationLink(
                     destination:
                         ImagePicker(image: self.$dataProperty.setImage)
-                        .navigationBarHidden(true)
                         .onDisappear(perform: {
                             (imageData, imageURL) = updateData(loadImage: dataProperty.setImage, url: imageURL) // coverImageを更新
                         })
@@ -158,7 +157,6 @@ struct EditBookDataView: View {
                 })
         )
         .onAppear(perform: {
-            
             dataProperty.unfavorite = 5 - favorite
         })
     }
