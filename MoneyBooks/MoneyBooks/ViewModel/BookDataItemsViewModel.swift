@@ -20,8 +20,8 @@ class DataProperty: ObservableObject {
     @Published var yourValue: String = ""
     @Published var memo: String = ""
     @Published var impressions: String = ""
-    @Published var favorite: Int = 0
-    @Published var unfavorite: Int = 0
+    @Published var favorite: Int = 1
+    @Published var unfavorite: Int = 4
     @Published var setImage: UIImage?
     @Published var coverImage: Image = Image(systemName: "nosign")
     

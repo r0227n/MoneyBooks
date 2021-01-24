@@ -116,8 +116,7 @@ struct EditBookDataView: View {
                     Section(header: Text("メモ")){
                         TextEditor(text: $memo)
                     }
-         
-                    if(stateOfControl == 0){
+                    if(stateOfControl == 1){
                         readThroughSection
                     }
                 }
@@ -199,6 +198,10 @@ struct EditBookDataView: View {
         self.presentationMode.wrappedValue.dismiss()
     }
 }
+
+
+
+
 
 
 

@@ -108,7 +108,7 @@ struct ListManagementView: View {
                     .onAppear(perform: {
                         print(numberOfBooks)
                     })
-        })
+        })  // ← HomeMoneyBooksViewで同様の宣言を行なっているが、ここでも宣言しないとbottombarが消えるバグがある
         .gesture(
             DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
                 .onEnded({ swipe in // end time

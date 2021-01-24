@@ -107,7 +107,7 @@ struct AddBookDataView: View {
                     Section(header: Text("メモ")){
                         TextEditor(text: $dataProperty.memo)
                     }
-                    if(savePoint == 0){
+                    if(savePoint == 1){
                         readThroughSection
                     }
                 }
