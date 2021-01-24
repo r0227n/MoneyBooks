@@ -16,7 +16,7 @@
       ],
       "color" : {
         "platform" : "ios",
-        "reference" : "secondarySystemFillColor"
+        "reference" : "groupTableViewBackgroundColor"
       },
       "idiom" : "universal"
     }

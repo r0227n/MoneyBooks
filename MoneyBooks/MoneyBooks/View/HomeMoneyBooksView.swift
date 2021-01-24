@@ -13,7 +13,7 @@ class ManagementInformation : ObservableObject {
     @Published var your:Int = 0
     @Published var numberOfDisplay: [Int] = [0,0,0,0]
     
-    let icons: [String] = ["bookmark.fill","book.fill","books.vertical.fill","paperclip.badge.ellipsis"]
+    let icons: [String] = ["book.fill","book.closed.fill","books.vertical.fill","bag.fill"]
     let colors: [Color] = [.red,.orange,.blue,.green]
 
     func updateNumber(){
@@ -46,13 +46,19 @@ struct HomeMoneyBooksView: View {
                                label:{})
                 
                 Form {
-                    Section(header: Text("合計")) {
-                    GeometryReader{geometry in
-                            HStack{
-                                TotalGridItems(name: "定価", money: managementInformation.regular)
-                                TotalGridItems(name: "コスパ", money: managementInformation.your)
+                    Section(header: Text("合計金額").font(.callout)) {
+                        GeometryReader{ geometry in
+                            HStack {
+                                GridItems(text: "定価",
+                                          money: managementInformation.regular,
+                                          width: geometry.size.width/2,
+                                      height: geometry.size.height)
+                                GridItems(text: "コスパ",
+                                          money: managementInformation.your,
+                                          width: geometry.size.width/2,
+                                          height: geometry.size.height)
                             }
-                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .foregroundColor(Color("gridItems"))
                         }.frame(height: 100)
                     }
                     
@@ -84,7 +90,13 @@ struct HomeMoneyBooksView: View {
                             }
                         })
                     }
-                    Section(header: Text("マイリスト")){
+                    Section(header:
+                                HStack(spacing: 10) {
+                                    Text("本棚")
+                                    Text("\(managementInformation.numberOfDisplay.reduce(0) { $0 + $1 })"+" 冊")
+                                }
+                                .font(.callout)
+                    ){
                         ForEach(1..<4) { category in
                             Button(action: {
                                 managementNumber = category
@@ -115,6 +127,7 @@ struct HomeMoneyBooksView: View {
                         }
                     }
                 }
+                Spacer()
             }
             .toolbar(content: {
                 ToolbarItemGroup(placement: .bottomBar) {
@@ -150,28 +163,64 @@ struct HomeMoneyBooksView: View {
     }
 }
 
-struct TotalGridItems: View {
-    let name: String
+struct GridItems: View {
+    let text: String
     let money: Int
-    init(name: String, money: Int){
-        self.name = name
-        self.money = money
-    }
-    var body: some View{
-        GeometryReader{geometry in
-            ZStack{
-                RoundedRectangle(cornerRadius: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Corner Radius@*/10.0/*@END_MENU_TOKEN@*/)
-                VStack{
-                    Text(name)
-                    Text("\(money)"+"円")
-                }.foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
+    let width: CGFloat
+    let height: CGFloat
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Corner Radius@*/10.0/*@END_MENU_TOKEN@*/)
+                .foregroundColor(Color("gridItems"))
+            VStack(alignment: .leading) {
+                Text(text)
+                    .font(.subheadline)
+                    .frame(width: width, height: 10, alignment: .leading)
+                    .offset(x: 10, y: 0)
+                HStack(alignment: .center) {
+                    Spacer()
+                    Group{
+                        Text("\(money)")
+                            .font(.headline)
+                            .padding(5)
+                        Text("円")
+                    }.padding(5)
+                }
             }
-            .foregroundColor(Color("backColor"))
-            .frame(width: geometry.size.width, height: geometry.size.height)
+            .foregroundColor(Color("label"))
         }
-        
+        .frame(width: width, height: height)
     }
-    
+}
+
+struct TotalItems: View {
+    let category: [String] = ["定価","コスパ","登録数"]
+    let money: [Int] = [1000,20000,10]
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading){
+                ForEach(0..<2){ item in
+                    HStack {
+                        Text(category[item])
+                            .offset(x: 10)
+                        Spacer()
+                        Text("\(money[item])")
+                            .padding(10)
+                        Text("円")
+                    }
+                    Divider()
+                }
+                HStack{
+                    Text(category[2])
+                        .offset(x: 10)
+                    Spacer()
+                    Text("\(money[2])")
+                        .padding(10)
+                    Text("冊")
+                }
+            }
+        }
+    }
 }
 
 struct HomeMoneyBooksView_Previews: PreviewProvider {
@@ -180,8 +229,6 @@ struct HomeMoneyBooksView_Previews: PreviewProvider {
             HomeMoneyBooksView()
             HomeMoneyBooksView()
                 .preferredColorScheme(.dark)
-            HomeMoneyBooksView()
-                .previewDevice("iPad Pro (12.9-inch) (4th generation)")
                 
         }
     }
