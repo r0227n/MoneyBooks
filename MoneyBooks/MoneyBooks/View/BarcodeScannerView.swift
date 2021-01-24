@@ -29,7 +29,7 @@ struct BarcodeScannerView: View {
                     .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
                 NavigationLink(
                     destination: ResultSearchBookView(request: $isbn,
-                                                      price: $manualInput.regularPrice,
+                                                      price: $manualInput.regular,
                                                       storage: $openCollectionViewNumber,
                                                       openResult: $openBarCode),
                     isActive: $codeReadingCompleted,
@@ -39,7 +39,7 @@ struct BarcodeScannerView: View {
                     destination: AddBookDataView(imageURL: $manualInput.url,
                                                  title: $manualInput.title,
                                                  author: $manualInput.author,
-                                                 regular: $manualInput.regularPrice,
+                                                 regular: $manualInput.regular,
                                                  savePoint: $openCollectionViewNumber,
                                                  openAdd: $openBarCode),
                     isActive: $pushNaviButton,
@@ -54,7 +54,7 @@ struct BarcodeScannerView: View {
                      .dropLast():【チェックデジット】（1桁）を削除
                      Substring　→ String
                      */
-                    manualInput.regularPrice = String(number.suffix(number.count - 7).dropLast())
+                    manualInput.regular = String(number.suffix(number.count - 7).dropLast())
                     codeReadingCompleted = true
                 }else if(number.prefix(3) == "978"){  // BarCodeの上の段
                     isbn = number

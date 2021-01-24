@@ -14,10 +14,9 @@ class DataProperty: ObservableObject {
     @Published var naviButtonTitle = ""
     @Published var title: String = ""
     @Published var author: String = ""
-    @Published var regularPrice: String = ""
-    @Published var dateOfPurchase: Date = Date()
-    @Published var stateOfControl:Int = 0
-    @Published var yourValue: String = ""
+    @Published var regular: String = ""
+    @Published var buy: Date = Date()
+    @Published var save:Int = 0
     @Published var memo: String = ""
     @Published var impressions: String = ""
     @Published var favorite: Int = 1

@@ -15,16 +15,15 @@ struct EditBookDataView: View {
     @Binding var imageURL: String
     @Binding var title: String
     @Binding var author: String
-    @Binding var regularPrice: String
-    @Binding var dateOfPurchase: Date
-    @Binding var stateOfControl: Int
-    @Binding var yourValue: String
+    @Binding var regular: String
+    @Binding var buy: Date
+    @Binding var save: Int
     @Binding var memo: String
     @Binding var impressions: String
     @Binding var favorite: Int
     
     @FetchRequest(
-        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
+        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.id, ascending: true) ],
         animation: .default)
     var items: FetchedResults<Books>
     
@@ -53,16 +52,16 @@ struct EditBookDataView: View {
             TextField("本のタイトルを入力してください", text: $title)
             TextField("作者を入力してください", text: $author)
 
-            TextField("定価を入力してください", text: $regularPrice,
+            TextField("定価を入力してください", text: $regular,
                       onEditingChanged: { begin in
-                        regularPrice = dataProperty.checkerYen(typeMoney: regularPrice)
+                        regular = dataProperty.checkerYen(typeMoney: regular)
 
                       })
                 .keyboardType(.numbersAndPunctuation)
 
-            DatePicker("購入日", selection: $dateOfPurchase, displayedComponents: .date)
+            DatePicker("購入日", selection: $buy, displayedComponents: .date)
 
-            Picker(selection: $stateOfControl, label: Text("管理先を指定してください")) {
+            Picker(selection: $save, label: Text("管理先を指定してください")) {
                 ForEach(0 ..< manualInput.managementStatus.count) { num in
                     Text(manualInput.managementStatus[num])
                 }
@@ -97,11 +96,6 @@ struct EditBookDataView: View {
                             .foregroundColor(.gray)
                     }
                 }
-                TextField("どれぐらいの価値ですか？", text: $yourValue,
-                          onEditingChanged: { begin in
-                            yourValue = dataProperty.checkerYen(typeMoney: yourValue)
-                          })
-                    .keyboardType(.numbersAndPunctuation)
             }
         }
     }
@@ -116,7 +110,7 @@ struct EditBookDataView: View {
                     Section(header: Text("メモ")){
                         TextEditor(text: $memo)
                     }
-                    if(stateOfControl == 1){
+                    if(save == 1){
                         readThroughSection
                     }
                 }
@@ -184,13 +178,12 @@ struct EditBookDataView: View {
             editItem?.img = imageData
             editItem?.title = title
             editItem?.author =  author
-            editItem?.regularPrice = dataProperty.dataSetMoney(setMoney: regularPrice)
-            editItem?.dateOfPurchase = dateOfPurchase
-            editItem?.stateOfControl = Int16(stateOfControl)
+            editItem?.regular = dataProperty.dataSetMoney(setMoney: regular)
+            editItem?.buy = buy
+            editItem?.save = Int16(save)
             editItem?.memo = memo
             editItem?.impressions =  impressions
             editItem?.favorite = Int16(favorite)
-            editItem?.yourValue = dataProperty.dataSetMoney(setMoney: yourValue)
             try self.viewContext.save()
         } catch {
             print(error)

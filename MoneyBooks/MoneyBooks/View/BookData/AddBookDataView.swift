@@ -17,7 +17,7 @@ struct AddBookDataView: View {
     @Binding var openAdd: Bool
     
     @FetchRequest(
-        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
+        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.id, ascending: true) ],
         animation: .default)
     var items: FetchedResults<Books>
     
@@ -51,7 +51,7 @@ struct AddBookDataView: View {
                       })
                 .keyboardType(.numbersAndPunctuation)
 
-            DatePicker("購入日", selection: $dataProperty.dateOfPurchase, displayedComponents: .date)
+            DatePicker("購入日", selection: $dataProperty.buy, displayedComponents: .date)
 
             Picker(selection: $savePoint, label: Text("管理先を指定してください")) {
                 ForEach(0 ..< manualInput.managementStatus.count) { num in
@@ -88,11 +88,6 @@ struct AddBookDataView: View {
                             .foregroundColor(.gray)
                     }
                 }
-                TextField("どれぐらいの価値ですか？", text: $dataProperty.yourValue,
-                          onEditingChanged: { begin in
-                            dataProperty.yourValue = dataProperty.checkerYen(typeMoney: dataProperty.yourValue)
-                          })
-                    .keyboardType(.numbersAndPunctuation)
             }
         }
     }
@@ -176,13 +171,12 @@ struct AddBookDataView: View {
             newItem.img = pickedImage!
             newItem.title = title
             newItem.author =  author
-            newItem.regularPrice = dataProperty.dataSetMoney(setMoney: regular)
-            newItem.dateOfPurchase = dataProperty.dateOfPurchase
-            newItem.stateOfControl = Int16(savePoint)
+            newItem.regular = dataProperty.dataSetMoney(setMoney: regular)
+            newItem.buy = dataProperty.buy
+            newItem.save = Int16(savePoint)
             newItem.memo = dataProperty.memo
             newItem.impressions =  dataProperty.impressions
             newItem.favorite = Int16(dataProperty.favorite)
-            newItem.yourValue = dataProperty.dataSetMoney(setMoney: dataProperty.yourValue)
 
             do {
                 try viewContext.save()

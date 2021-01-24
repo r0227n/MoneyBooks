@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct ListManagementView: View {
     @FetchRequest(
-        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
+        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.id, ascending: true) ],
         animation: .default)
     var items: FetchedResults<Books>
     @Environment(\.managedObjectContext) private var viewContext
@@ -32,10 +32,9 @@ struct ListManagementView: View {
                                           imageURL: $manualInput.url,
                                           title: $manualInput.title,
                                           author: $manualInput.author,
-                                          regularPrice: $manualInput.regularPrice,
-                                          dateOfPurchase: $manualInput.dateOfPurchase,
-                                          stateOfControl: $manualInput.stateOfControl,
-                                          yourValue: $manualInput.yourValue,
+                                          regular: $manualInput.regular,
+                                          buy: $manualInput.buy,
+                                          save: $manualInput.save,
                                           memo: $manualInput.memo,
                                           impressions: $manualInput.impressions,
                                           favorite: $manualInput.favorite),
@@ -43,11 +42,31 @@ struct ListManagementView: View {
             label: {})
         List{
             ForEach(items) { item in
-                if(item.stateOfControl == numberOfBooks){
+                if(item.save == numberOfBooks){
                     Button(action: {
                         // CoreDataからデータを引き抜き、変数に入れ替える
-                        (coreDataImage, coreDataID, manualInput.url, manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.stateOfControl ,manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite)
-                            = readCoreData(image: item.img!, id: item.id!, url: item.webImg ?? "", title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, stateOfController: item.stateOfControl, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
+                        (coreDataID,
+                         coreDataImage,
+                         manualInput.url,
+                         manualInput.title,
+                         manualInput.author,
+                         manualInput.regular,
+                         manualInput.buy,
+                         manualInput.save,
+                         manualInput.memo,
+                         manualInput.impressions,
+                         manualInput.favorite)
+                            = ReadCoreData(id: item.id!,
+                                           image: item.img!,
+                                           url: item.webImg!,
+                                           title: item.title!,
+                                           author: item.author!,
+                                           regular: item.regular,
+                                           buy: item.buy!,
+                                           save: item.save,
+                                           memo: item.memo!,
+                                           impression: item.impressions!,
+                                           favorite: item.favorite)
                         bottomBarHidden.toggle()
                     }, label: {
                         HStack {
@@ -56,7 +75,6 @@ struct ListManagementView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 50, height:50)
-                                    //.padding(20)
                             }else{
                                 Image(uiImage: (UIImage(data: item.img ?? .init(count:0)) ?? UIImage(systemName: "nosign"))!)
                                     .resizable()
@@ -90,7 +108,6 @@ struct ListManagementView: View {
                     }
                 })
             }
-            // ListManagementView ⇄ BarcodeScannerViewの入れ替えでボタンがスムーズに表示するため（ないと表示に遅延が発生する）
             ToolbarItemGroup(placement: .bottomBar) {
                 Button(action: {
                     openBarcodeView.toggle()
@@ -119,19 +136,10 @@ struct ListManagementView: View {
         )
     }
     
-    
-    private func readCoreData(image: Data, id: UUID, url: String, title:String, author:String, dateOfPurchase:Date, stateOfController: Int16, regularPrice:Int16, yourValue:Int16, memo:String, impressions:String, favorite:Int16)
-    -> (Data, UUID, String, String,String,Date,Int,String,String,String,String,Int){
-        
-        var convertRegular:String = ""
-        var convertYour:String = ""
-        if(regularPrice > 0){
-            convertRegular = String(regularPrice) + "円"
-        }
-        if(yourValue > 0){
-            convertYour = String(yourValue) + "円"
-        }
-        return(image, id, url, title, author, dateOfPurchase, Int(stateOfController), convertRegular, convertYour, memo, impressions, Int(favorite))
+    private func ReadCoreData(id: UUID, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16)
+    ->(UUID, Data, String, String, String, String, Date, Int, String, String, Int) {
+        let conbertRegular: String = String(regular) + "円"
+        return (id, image, url, title, author, conbertRegular, buy, Int(save), memo, impression, Int(favorite))
     }
 
     

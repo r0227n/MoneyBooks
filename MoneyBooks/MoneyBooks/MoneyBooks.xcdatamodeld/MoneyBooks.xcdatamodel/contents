@@ -2,20 +2,19 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17511" systemVersion="19H114" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Books" representedClassName="Books" syncable="YES" codeGenerationType="class">
         <attribute name="author" optional="YES" attributeType="String"/>
-        <attribute name="dateOfPurchase" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="buy" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="evaluation" optional="YES" attributeType="String"/>
         <attribute name="favorite" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="img" optional="YES" attributeType="Binary"/>
         <attribute name="impressions" optional="YES" attributeType="String"/>
         <attribute name="memo" optional="YES" attributeType="String"/>
-        <attribute name="regularPrice" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="stateOfControl" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="regular" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="save" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="webImg" optional="YES" attributeType="String"/>
-        <attribute name="yourValue" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="Books" positionX="-63" positionY="-18" width="128" height="238"/>
+        <element name="Books" positionX="-63" positionY="-18" width="128" height="223"/>
     </elements>
 </model>

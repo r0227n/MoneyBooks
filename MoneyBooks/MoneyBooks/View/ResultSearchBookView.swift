@@ -13,11 +13,9 @@ class ManualInput : ObservableObject {
     @Published var url: String = ""
     @Published var title: String = ""
     @Published var author: String = ""
-    @Published var dateOfPurchase = Date()
-    @Published var stateOfControl = 1
-    @Published var regularPrice: String = ""
-    @Published var yourValue: String = ""
-    @Published var evaluation: String = ""
+    @Published var buy = Date()
+    @Published var save = 1
+    @Published var regular: String = ""
     @Published var memo: String = ""
     @Published var impressions: String = ""
     @Published var favorite: Int = 1
@@ -44,7 +42,7 @@ struct ResultSearchBookView: View {
             destination: AddBookDataView(imageURL: $manualInput.url,
                                          title: $manualInput.title,
                                          author: $manualInput.author,
-                                         regular: $manualInput.regularPrice,
+                                         regular: $manualInput.regular,
                                          savePoint: $storage,
                                          openAdd: $openResult),
             isActive: $addTypeBookData,
@@ -71,7 +69,7 @@ struct ResultSearchBookView: View {
                 manualInput.url = i.imgUrl
                 manualInput.title = i.title
                 manualInput.author = i.authors
-                manualInput.regularPrice = DataProperty().checkerYen(typeMoney: price)
+                manualInput.regular = DataProperty().checkerYen(typeMoney: price)
                 addTypeBookData.toggle()
             }
         }
