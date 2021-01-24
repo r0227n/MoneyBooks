@@ -10,7 +10,7 @@ struct EditBookDataView: View {
     @StateObject var dataProperty = DataProperty()
     @StateObject var manualInput = ManualInput()
     
-    @Binding var id: UUID
+    @Binding var id: String
     @Binding var imageData: Data
     @Binding var imageURL: String
     @Binding var title: String
@@ -170,7 +170,7 @@ struct EditBookDataView: View {
     }
     func updateItem() {
         let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
-        fetchRequest.predicate = NSPredicate.init(format: "id=%@", id as CVarArg)
+        fetchRequest.predicate = NSPredicate.init(format: "id=%@", id)
         do {
             let editItem = try self.viewContext.fetch(fetchRequest).first
             editItem?.id = id

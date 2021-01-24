@@ -58,6 +58,7 @@ struct HomeMoneyBooksView: View {
         }
     }
     
+    
     var bookshelf: some View {
         ForEach(0..<4) { category in
             Button(action: {
@@ -98,7 +99,7 @@ struct HomeMoneyBooksView: View {
                                label:{})
                 List {
                     Section(header: Text("読書中")) {
-                        DisclosureGroup(homeItems.titles[homeItems.selection], isExpanded: $homeItems.closedSelector) {
+                        DisclosureGroup("タイトル："+homeItems.titles[homeItems.selection], isExpanded: $homeItems.closedSelector) {
                             Picker(selection: $homeItems.selection, label: Text("タイトル")) {
                                 ForEach(0 ..< homeItems.titles.count) { num in
                                     Text(homeItems.titles[num])
@@ -115,24 +116,17 @@ struct HomeMoneyBooksView: View {
                             .frame(height: 100)
                         }
                         if(homeItems.selection+1 == homeItems.titles.count){
-                            GeometryReader{ geometry in
                             HStack {
-                                TextField("タイトルを入力してください", text: $homeItems.newTitle)
+                                TextField("新規タイトル名を入力してください", text: $homeItems.newTitle,
+                                          onEditingChanged: { begin in
+                                            if(begin != false) {
+                                                homeItems.closedSelector = false
+                                            }else{
+                                                UIApplication.shared.endEditing()
+                                            }
+                                          })
                                 Spacer()
-                                Button(action: {
-                                    
-                                }, label: {
-                                    ZStack{
-                                        Capsule()
-                                        Text("新規追加")
-                                            .foregroundColor(.white)
-                                    }
-                                })
-                                .foregroundColor(.red)
-                                .frame(width: geometry.size.width / 4, height: geometry.size.height)
                             }
-                                
-                           }
                         }
                         TextEditor(text: $homeItems.memo)
                             .frame(height: 100)
@@ -147,6 +141,21 @@ struct HomeMoneyBooksView: View {
                 }
             }
             .toolbar(content: {
+                ToolbarItem(placement: .automatic){
+                    if(homeItems.selection+1 == homeItems.titles.count){
+                        Button(action: {
+                            addItem()
+                        }, label: {
+                            Text("追加")
+                        })
+                    }else{
+                        Button(action: {
+                            updateItem()
+                        }, label: {
+                            Text("更新")
+                        })
+                    }
+                }
                 ToolbarItemGroup(placement: .bottomBar) {
                     Button(action: {
                         openBarcodeScannerView.toggle()
@@ -184,11 +193,10 @@ struct HomeMoneyBooksView: View {
     
     private func addItem() {
         withAnimation {
-            let newItem = MoneyBooks.Books(context: viewContext)
-            let pickedImage = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
-            newItem.id = UUID()
+            let newItem = Books(context: viewContext)
+            newItem.id = UUID().uuidString
             newItem.webImg = ""
-            newItem.img = pickedImage!
+            newItem.img = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
             newItem.title = homeItems.newTitle
             newItem.author =  "未入力"
             newItem.regular = Int16(0)
@@ -205,23 +213,22 @@ struct HomeMoneyBooksView: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
+        homeItems.newTitle = ""
+        homeItems.memo = ""
+        resetNumber()
     }
-}
-
-
-
-
-
-struct HomeMoneyBooksView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            HomeMoneyBooksView()
-//            HomeMoneyBooksView()
-//                .preferredColorScheme(.dark)
-//            MyReading(title: .constant("test"), memo: .constant("memo"))
-//                .previewLayout(PreviewLayout.fixed(width: 300, height: 100))
-//                .padding()
-//                .previewDisplayName("Default preview")
+    
+    private func updateItem() {
+        let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
+        let search: String = homeItems.titles[homeItems.selection]
+        fetchRequest.predicate = NSPredicate.init(format: "title=%@", search)
+        do {
+            let editItem = try self.viewContext.fetch(fetchRequest).first
+            editItem?.memo = homeItems.memo
+            try self.viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
 }

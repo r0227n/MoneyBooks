@@ -23,7 +23,7 @@ struct ListManagementView: View {
     @StateObject var manualInput = ManualInput()
     
     @State var coreDataImage:Data = .init(count:0)
-    @State var coreDataID: UUID = UUID()
+    @State var coreDataID: String = ""
     
     var body: some View {
         NavigationLink(
@@ -122,9 +122,6 @@ struct ListManagementView: View {
                content: {
                 BarcodeScannerView(openCollectionViewNumber: $numberOfBooks,
                                    openBarCode: $openBarcodeView)
-                    .onAppear(perform: {
-                        print(numberOfBooks)
-                    })
         })  // ← HomeMoneyBooksViewで同様の宣言を行なっているが、ここでも宣言しないとbottombarが消えるバグがある
         .gesture(
             DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
@@ -136,8 +133,8 @@ struct ListManagementView: View {
         )
     }
     
-    private func ReadCoreData(id: UUID, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16)
-    ->(UUID, Data, String, String, String, String, Date, Int, String, String, Int) {
+    private func ReadCoreData(id: String, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16)
+    ->(String, Data, String, String, String, String, Date, Int, String, String, Int) {
         let conbertRegular: String = String(regular) + "円"
         return (id, image, url, title, author, conbertRegular, buy, Int(save), memo, impression, Int(favorite))
     }

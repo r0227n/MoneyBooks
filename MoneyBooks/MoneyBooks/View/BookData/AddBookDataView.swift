@@ -166,7 +166,7 @@ struct AddBookDataView: View {
             if pickedImage == nil { // 画像が選択されていない場合
                 pickedImage = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
             }
-            newItem.id = UUID()
+            newItem.id = UUID().uuidString
             newItem.webImg = imageURL
             newItem.img = pickedImage!
             newItem.title = title
