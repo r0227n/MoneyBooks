@@ -10,24 +10,26 @@ import SwiftUI
 import CoreData
 
 class HomeItems : ObservableObject {
-    @Published var regular:Int = 0
     @Published var numberOfDisplay: [Int] = [0,0,0,0]
     
     @Published var titles: [String] = ["新規追加"]
     @Published var memos: [String] = [""]
+    @Published var pages: [Double] = [1000.0]
+    @Published var reads: [Double] = [1.0]
+    
     @Published var selection: Int = 0
-    @Published var memo: String = ""
     @Published var newTitle: String = ""
     @Published var closedSelector: Bool = false
 
     
     let icons: [String] = ["book.fill","book.closed.fill","books.vertical.fill","bag.fill"]
     let colors: [Color] = [.red,.orange,.blue,.green]
+    
 
     func updateNumber(){
         titles = ["新規追加"]
         memos = [""]
-        regular = 0
+        newTitle = ""
         numberOfDisplay = [0,0,0,0]
     }
 }
@@ -58,7 +60,7 @@ struct HomeMoneyBooksView: View {
         }
     }
     
-    
+  
     var bookshelf: some View {
         ForEach(0..<4) { category in
             Button(action: {
@@ -90,6 +92,41 @@ struct HomeMoneyBooksView: View {
         }
     }
     
+    var selectionTitls: some View {
+        Group{
+            DisclosureGroup("タイトル    "+manualInput.title, isExpanded: $homeItems.closedSelector) {
+                Picker(selection: $homeItems.selection, label: Text("タイトル")) {
+                    ForEach(0 ..< homeItems.titles.count) { num in
+                        Text(homeItems.titles[num])
+                    }
+                }
+                .onChange(of: homeItems.selection, perform: { select in
+                    manualInput.title = homeItems.titles[homeItems.selection]
+                    manualInput.memo = homeItems.memos[homeItems.selection]
+                    manualInput.page = homeItems.pages[homeItems.selection]
+                    manualInput.read = homeItems.reads[homeItems.selection]
+                })
+                .onAppear(perform:{
+                    UIApplication.shared.endEditing()
+                    homeItems.memos[homeItems.selection] = manualInput.memo
+                })
+                .pickerStyle(WheelPickerStyle())
+                .frame(height: 140)
+            }
+            if(homeItems.selection+1 == homeItems.titles.count){
+                TextField("新規タイトル名を入力してください",
+                          text: $homeItems.newTitle,
+                          onEditingChanged: { begin in
+                    if(begin != false) {
+                        homeItems.closedSelector = false
+                    }else{
+                        UIApplication.shared.endEditing()
+                    }
+                })
+            }
+        }
+    }
+    
     var body: some View {
         NavigationView {
             VStack{ // VStack(HStack)でまとめないと何故か表示されない
@@ -98,38 +135,9 @@ struct HomeMoneyBooksView: View {
                                isActive: $openManagmentList,
                                label:{})
                 List {
-                    Section(header: Text("読書中")) {
-                        DisclosureGroup("タイトル："+homeItems.titles[homeItems.selection], isExpanded: $homeItems.closedSelector) {
-                            Picker(selection: $homeItems.selection, label: Text("タイトル")) {
-                                ForEach(0 ..< homeItems.titles.count) { num in
-                                    Text(homeItems.titles[num])
-                                }
-                            }
-                            .onChange(of: homeItems.selection, perform: { select in
-                                homeItems.memo = homeItems.memos[homeItems.selection]
-                            })
-                            .onAppear(perform:{
-                                UIApplication.shared.endEditing()
-                                homeItems.memos[homeItems.selection] = homeItems.memo
-                            })
-                            .pickerStyle(WheelPickerStyle())
-                            .frame(height: 100)
-                        }
-                        if(homeItems.selection+1 == homeItems.titles.count){
-                            HStack {
-                                TextField("新規タイトル名を入力してください", text: $homeItems.newTitle,
-                                          onEditingChanged: { begin in
-                                            if(begin != false) {
-                                                homeItems.closedSelector = false
-                                            }else{
-                                                UIApplication.shared.endEditing()
-                                            }
-                                          })
-                                Spacer()
-                            }
-                        }
-                        TextEditor(text: $homeItems.memo)
-                            .frame(height: 100)
+                    Section(header: Text("読書中").font(.callout)) {
+                        selectionTitls
+                        MemoField(read: $manualInput.read, total: $manualInput.page, memo: $manualInput.memo)
                             .onTapGesture {
                                 UIApplication.shared.endEditing()
                                 homeItems.closedSelector = false
@@ -144,15 +152,19 @@ struct HomeMoneyBooksView: View {
                 ToolbarItem(placement: .automatic){
                     if(homeItems.selection+1 == homeItems.titles.count){
                         Button(action: {
+                            UIApplication.shared.endEditing()
                             addItem()
                         }, label: {
                             Text("追加")
+                                .font(.largeTitle)
                         })
                     }else{
                         Button(action: {
+                            UIApplication.shared.endEditing()
                             updateItem()
                         }, label: {
                             Text("更新")
+                                .font(.largeTitle)
                         })
                     }
                 }
@@ -185,8 +197,9 @@ struct HomeMoneyBooksView: View {
             if($0.save == 0){
                 homeItems.titles.insert($0.title ?? "", at: 0)
                 homeItems.memos.insert($0.memo ?? "", at: 0)
+                homeItems.pages.insert($0.page, at: 0)
+                homeItems.reads.insert($0.read, at: 0)
             }
-            homeItems.regular += Int($0.regular)
             homeItems.numberOfDisplay[Int($0.save)] += 1
         }
     }
@@ -202,10 +215,11 @@ struct HomeMoneyBooksView: View {
             newItem.regular = Int16(0)
             newItem.buy = Date()
             newItem.save = Int16(0)
-            newItem.memo = homeItems.memo
+            newItem.memo = manualInput.memo
             newItem.impressions =  ""
             newItem.favorite = Int16(0)
-
+            newItem.page = manualInput.page
+            newItem.read = manualInput.read
             do {
                 try viewContext.save()
             } catch {
@@ -213,22 +227,45 @@ struct HomeMoneyBooksView: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
-        homeItems.newTitle = ""
-        homeItems.memo = ""
         resetNumber()
     }
     
     private func updateItem() {
         let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
-        let search: String = homeItems.titles[homeItems.selection]
-        fetchRequest.predicate = NSPredicate.init(format: "title=%@", search)
+        fetchRequest.predicate = NSPredicate.init(format: "title=%@", manualInput.title)
         do {
             let editItem = try self.viewContext.fetch(fetchRequest).first
-            editItem?.memo = homeItems.memo
+            editItem?.memo = manualInput.memo
+            editItem?.read = manualInput.read
             try self.viewContext.save()
         } catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
+        resetNumber()
+    }
+}
+
+
+struct MemoField: View {
+    @Binding var read: Double
+    @Binding var total: Double
+    @Binding var memo: String
+    var body: some View {
+        VStack {
+            Group {
+                Slider(value: $read, in: 0...total, step: 1)
+                Stepper(value: $read, in: 0...total) {
+                    HStack {
+                        Text("ページ数")
+                        Spacer()
+                        Text("\(Int(read))" + "  /  " + "\(Int(total))"+"ページ")
+                        Spacer()
+                    }
+                }
+            }.frame(height: 30)
+            TextEditor(text: $memo)
+                .frame(height: 140)
         }
     }
 }

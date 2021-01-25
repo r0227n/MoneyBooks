@@ -7,7 +7,7 @@
 
 import SwiftyJSON
  
-final class GoogleBooksAPIViewModel : ObservableObject {
+class GoogleBooksAPIViewModel : ObservableObject {
     
     @Published var data = [Book]()
 
@@ -21,7 +21,6 @@ final class GoogleBooksAPIViewModel : ObservableObject {
             }
             
             let json = try! JSON(data: data!)
-//            let items = json["items"].array!
             guard let items = json["items"].array else {
                 print("error")
                 //self.setUpManualInput()
@@ -37,7 +36,8 @@ final class GoogleBooksAPIViewModel : ObservableObject {
                     authors = ["データなし"]
                 }
 
-                //let isbn = i["volumeInfo"]["industryIdentifiers"].array!
+                let pageCount = i["volumeInfo"]["pageCount"].int
+                print(pageCount ?? 0)
                 
                 var author = ""
                 
@@ -53,7 +53,7 @@ final class GoogleBooksAPIViewModel : ObservableObject {
                 let url1 = i["volumeInfo"]["previewLink"].stringValue
                 
                 DispatchQueue.main.async {
-                    self.data.append(Book(id: id, title: title, authors: author, desc: description, imgUrl: imurl, url: url1))
+                    self.data.append(Book(id: id, title: title, authors: author, pageCount: pageCount ?? 0, desc: description, imgUrl: imurl, url: url1))
                 }
             }
             //self.setUpManualInput()
@@ -62,7 +62,7 @@ final class GoogleBooksAPIViewModel : ObservableObject {
     
     func setUpManualInput() {
         DispatchQueue.main.async {
-            self.data.append(Book(id: "", title: "データを手入力", authors: "", desc: "書籍を見つけることができなかったた、入力してください。", imgUrl: "", url: ""))
+            self.data.append(Book(id: "", title: "データを手入力", authors: "",pageCount: 0 ,desc: "書籍を見つけることができなかったた、入力してください。", imgUrl: "", url: ""))
         }
     }
 }
@@ -71,6 +71,7 @@ struct Book : Identifiable {
     var id : String
     var title : String
     var authors : String
+    var pageCount: Int
     var desc : String
     var imgUrl : String
     var url : String

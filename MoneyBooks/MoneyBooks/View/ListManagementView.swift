@@ -55,7 +55,9 @@ struct ListManagementView: View {
                          manualInput.save,
                          manualInput.memo,
                          manualInput.impressions,
-                         manualInput.favorite)
+                         manualInput.favorite,
+                         manualInput.page,
+                         manualInput.read)
                             = ReadCoreData(id: item.id!,
                                            image: item.img!,
                                            url: item.webImg!,
@@ -66,7 +68,9 @@ struct ListManagementView: View {
                                            save: item.save,
                                            memo: item.memo!,
                                            impression: item.impressions!,
-                                           favorite: item.favorite)
+                                           favorite: item.favorite,
+                                           page: item.page,
+                                           read: item.read)
                         bottomBarHidden.toggle()
                     }, label: {
                         HStack {
@@ -133,10 +137,10 @@ struct ListManagementView: View {
         )
     }
     
-    private func ReadCoreData(id: String, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16)
-    ->(String, Data, String, String, String, String, Date, Int, String, String, Int) {
+    private func ReadCoreData(id: String, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16, page: Double, read: Double)
+    ->(String, Data, String, String, String, String, Date, Int, String, String, Int, Double, Double) {
         let conbertRegular: String = String(regular) + "円"
-        return (id, image, url, title, author, conbertRegular, buy, Int(save), memo, impression, Int(favorite))
+        return (id, image, url, title, author, conbertRegular, buy, Int(save), memo, impression, Int(favorite), page, read)
     }
 
     

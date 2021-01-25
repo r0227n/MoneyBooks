@@ -19,6 +19,8 @@ class ManualInput : ObservableObject {
     @Published var memo: String = ""
     @Published var impressions: String = ""
     @Published var favorite: Int = 1
+    @Published var page: Double = 1000.0
+    @Published var read: Double = 1.0
     
     var managementStatus = ["読書中","読了", "積み本", "欲しい本"]
 }
