@@ -37,7 +37,9 @@ struct ListManagementView: View {
                                           save: $manualInput.save,
                                           memo: $manualInput.memo,
                                           impressions: $manualInput.impressions,
-                                          favorite: $manualInput.favorite),
+                                          favorite: $manualInput.favorite,
+                                          page: $manualInput.page,
+                                          read: $manualInput.read),
             isActive: $bottomBarHidden,
             label: {})
         List{
@@ -73,22 +75,24 @@ struct ListManagementView: View {
                                            read: item.read)
                         bottomBarHidden.toggle()
                     }, label: {
-                        HStack {
-                            if(item.webImg?.count ?? 0 != 0){
-                                WebImage(url: URL(string: item.webImg!))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 50, height:50)
-                            }else{
-                                Image(uiImage: (UIImage(data: item.img ?? .init(count:0)) ?? UIImage(systemName: "nosign"))!)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 50, height:50)
-                                    .padding(20)
+                        HStack(spacing: 5) {
+                            Group{
+                                if(item.webImg?.count ?? 0 != 0){
+                                    WebImage(url: URL(string: item.webImg!))
+                                }else{
+                                    Image(uiImage: (UIImage(data: item.img ?? .init(count:0)) ?? UIImage(systemName: "nosign"))!)
+                                        .resizable()
+                                }
                             }
-                            VStack {
+                            .scaledToFit()
+                            .frame(width: 50, height:50)
+                            .padding(20)
+                            VStack(alignment: .leading, spacing: 8) {
                                 Text(item.title!)
+                                    .font(.title)
+                                    .underline()
                                 Text(item.author!)
+                                    .font(.footnote)
                             }
                         }
                     })
@@ -137,10 +141,10 @@ struct ListManagementView: View {
         )
     }
     
-    private func ReadCoreData(id: String, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16, page: Double, read: Double)
-    ->(String, Data, String, String, String, String, Date, Int, String, String, Int, Double, Double) {
+    private func ReadCoreData(id: String, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16, page: Int16, read: Int16)
+    ->(String, Data, String, String, String, String, Date, Int, String, String, Int, String, String) {
         let conbertRegular: String = String(regular) + "円"
-        return (id, image, url, title, author, conbertRegular, buy, Int(save), memo, impression, Int(favorite), page, read)
+        return (id, image, url, title, author, conbertRegular, buy, Int(save), memo, impression, Int(favorite), String(page)+"ページ", String(read)+"ページ")
     }
 
     

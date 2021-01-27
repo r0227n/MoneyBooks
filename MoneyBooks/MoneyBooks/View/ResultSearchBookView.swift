@@ -19,8 +19,8 @@ class ManualInput : ObservableObject {
     @Published var memo: String = ""
     @Published var impressions: String = ""
     @Published var favorite: Int = 1
-    @Published var page: Double = 1000.0
-    @Published var read: Double = 1.0
+    @Published var page: String = "1000"
+    @Published var read: String = "0"  // CoreData Int16
     
     var managementStatus = ["読書中","読了", "積み本", "欲しい本"]
 }
@@ -71,7 +71,7 @@ struct ResultSearchBookView: View {
                 manualInput.url = i.imgUrl
                 manualInput.title = i.title
                 manualInput.author = i.authors
-                manualInput.regular = DataProperty().checkerYen(typeMoney: price)
+                manualInput.regular = DataProperty().checkerUnit(type: price, unit: .money)
                 addTypeBookData.toggle()
             }
         }

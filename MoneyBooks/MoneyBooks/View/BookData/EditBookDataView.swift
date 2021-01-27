@@ -21,99 +21,28 @@ struct EditBookDataView: View {
     @Binding var memo: String
     @Binding var impressions: String
     @Binding var favorite: Int
+    @Binding var page: String
+    @Binding var read: String
     
     @FetchRequest(
         sortDescriptors: [ NSSortDescriptor(keyPath: \Books.id, ascending: true) ],
         animation: .default)
     var items: FetchedResults<Books>
     
-    
-    var minimumLayout: some View {
-        Group {
-            HStack {
-                Spacer()
-                Button(action: {
-                    UIApplication.shared.endEditing()
-                    withAnimation {
-                        dataProperty.isShowMenu.toggle()
-                    }
-                }, label: {
-                    if(imageURL.count != 0){
-                        WebImage(url: URL(string: imageURL)!)
-                    }else{
-                        Image(uiImage: UIImage(data: imageData)!)
-                            .resizable()
-                    }
-                })
-                .scaledToFit()
-                .frame(width: 200, height: 200, alignment: .center)
-                Spacer()
-            }
-            TextField("本のタイトルを入力してください", text: $title)
-            TextField("作者を入力してください", text: $author)
-
-            TextField("定価を入力してください", text: $regular,
-                      onEditingChanged: { begin in
-                        regular = dataProperty.checkerYen(typeMoney: regular)
-
-                      })
-                .keyboardType(.numbersAndPunctuation)
-
-            DatePicker("購入日", selection: $buy, displayedComponents: .date)
-
-            Picker(selection: $save, label: Text("管理先を指定してください")) {
-                ForEach(0 ..< manualInput.managementStatus.count) { num in
-                    Text(manualInput.managementStatus[num])
-                }
-            }
-
-        }
-    }
-    
-    var readThroughSection: some View {
-        Group {
-            Section(header: Text("感想")){
-                TextEditor(text: $impressions)
-            }
-            Section(header: Text("あなたにとってこの本は？")){
-                HStack(spacing: 10) {
-                    ForEach(0..<favorite, id:\.self){ yellow in
-                        Image(systemName: "star.fill")
-                            .onTapGesture(perform: {
-                                favorite = yellow + 1
-                                dataProperty.unfavorite = 4 - yellow
-                            })
-                            .foregroundColor(.yellow)
-                            .padding()
-                    }
-                    ForEach(0..<dataProperty.unfavorite, id: \.self){ gray in
-                        Image(systemName: "star.fill")
-                            .onTapGesture(perform: {
-                                favorite += (gray + 1)
-                                dataProperty.unfavorite -= (gray + 1)
-                            })
-                            .padding()
-                            .foregroundColor(.gray)
-                    }
-                }
-            }
-        }
-    }
-    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Form {
-                    Section(header: Text("表紙")){
-                        minimumLayout
-                    }
-                    Section(header: Text("メモ")){
-                        TextEditor(text: $memo)
+                List {
+                    MinimumLayout(imageData: $imageData, imageURL: $imageURL, title: $title, author: $author, regular: $regular, buy: $buy, save: $save, page: $page, status: $manualInput.managementStatus, isShowMenu: $dataProperty.isShowMenu)
+                    
+                    Section(header: Text("メモ").font(.callout)){
+                        MemoField(read: $read, memo: $memo)
                     }
                     if(save == 1){
-                        readThroughSection
+                        ReadSection(impressions: $impressions, favorite: $favorite, unfavorite: $dataProperty.unfavorite)
                     }
                 }
+                .listStyle(SidebarListStyle())
                 MenuViewWithinSafeArea(isShowMenu: $dataProperty.isShowMenu, setImage: $dataProperty.setImage,
                                        bottomSafeAreaInsets: (geometry.size.height + geometry.safeAreaInsets.bottom))
                     .ignoresSafeArea(edges: .bottom)
@@ -125,7 +54,7 @@ struct EditBookDataView: View {
             }
         })
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(Text("編集"))
+        .navigationBarTitle(Text("編集画面"))
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
@@ -192,8 +121,120 @@ struct EditBookDataView: View {
     }
 }
 
+struct MinimumLayout: View {
+    @Binding var imageData: Data
+    @Binding var imageURL: String
+    @Binding var title: String
+    @Binding var author: String
+    @Binding var regular: String
+    @Binding var buy: Date
+    @Binding var save: Int
+    @Binding var page: String
+    
+    @Binding var status: [String]
+    @Binding var isShowMenu: Bool
+    
+    var body: some View {
+        Section(header: Text("書籍情報").font(.callout)){
+            Group {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        UIApplication.shared.endEditing()
+                        withAnimation {
+                            isShowMenu.toggle()
+                        }
+                    }, label: {
+                        if(imageURL.count != 0){
+                            WebImage(url: URL(string: imageURL)!)
+                        }else{
+                            Image(uiImage: UIImage(data: imageData)!)
+                                .resizable()
+                        }
+                    })
+                    .scaledToFit()
+                    .frame(width: 200, height: 200, alignment: .center)
+                    Spacer()
+                }
+                HStack {
+                    Text("タイトル")
+                    TextField("本のタイトルを入力してください", text: $title)
+                }
+                HStack {
+                    Text("作者")
+                    TextField("作者を入力してください", text: $author)
+                }
+                Group {
+                    HStack {
+                        Text("定価")
+                        TextField("定価を入力してください", text: $regular,
+                                  onEditingChanged: { begin in
+                                    regular = DataProperty().checkerUnit(type: regular, unit: .money)
+                              })
+                    }
+                    HStack {
+                        Text("ページ数")
+                        TextField("ページ数は？", text: $page,
+                                  onEditingChanged: { begin in
+                                    page = DataProperty().checkerUnit(type: page, unit: .page)
+                                  })
+                    }
+                }
+                .keyboardType(.numberPad)
+            }
+            .multilineTextAlignment(.trailing)
+            .onTapGesture {
+                UIApplication.shared.endEditing()
+            }
+            
+            DatePicker("購入日", selection: $buy, displayedComponents: .date)
 
+            Picker(selection: $save, label: Text("管理先を指定してください")) {
+                ForEach(0 ..< status.count) { num in
+                    Text(status[num])
+                }
+            }
+        }
+    }
+}
 
+struct ReadSection: View {
+    @Binding var impressions: String
+    @Binding var favorite: Int
+    @Binding var unfavorite: Int
+    var body: some View {
+        Section(header: Text("あなたにとってこの本は？").font(.callout)){
+            HStack(spacing: 10) {
+                ForEach(0..<favorite, id:\.self){ yellow in
+                    Image(systemName: "star.fill")
+                        .onTapGesture(perform: {
+                            favorite = yellow + 1
+                            unfavorite = 4 - yellow
+                        })
+                        .foregroundColor(.yellow)
+                        .padding()
+                }
+                ForEach(0..<unfavorite, id: \.self){ gray in
+                    Image(systemName: "star.fill")
+                        .onTapGesture(perform: {
+                            favorite += (gray + 1)
+                            unfavorite -= (gray + 1)
+                        })
+                        .padding()
+                        .foregroundColor(.gray)
+                }
+            }
+        }
+        Section(header: Text("感想")){
+            TextEditor(text: $impressions)
+                .frame(height: 140)
+                .onTapGesture {
+                    UIApplication.shared.endEditing()
+                }
+        }
+        
+    }
+}
 
 
 

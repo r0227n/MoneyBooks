@@ -47,7 +47,7 @@ struct AddBookDataView: View {
 
             TextField("定価を入力してください", text: $regular,
                       onEditingChanged: { begin in
-                        regular = dataProperty.checkerYen(typeMoney: regular)
+                        regular = dataProperty.checkerUnit(type: regular, unit: .money)
                       })
                 .keyboardType(.numbersAndPunctuation)
 

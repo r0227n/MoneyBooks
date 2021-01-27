@@ -14,8 +14,8 @@ class HomeItems : ObservableObject {
     
     @Published var titles: [String] = ["新規追加"]
     @Published var memos: [String] = [""]
-    @Published var pages: [Double] = [1000.0]
-    @Published var reads: [Double] = [1.0]
+    @Published var pages: [Int] = [1000]
+    @Published var reads: [String] = ["0ページ"]
     
     @Published var selection: Int = 0
     @Published var newTitle: String = ""
@@ -48,6 +48,7 @@ struct HomeMoneyBooksView: View {
     @State var openBarcodeScannerView:Bool = false
     @State var managementNumber:Int = 1
     @State var openManagmentList:Bool = false
+    
     
     struct BookShelfTitle: View {
         let items: Int
@@ -103,7 +104,6 @@ struct HomeMoneyBooksView: View {
                 .onChange(of: homeItems.selection, perform: { select in
                     manualInput.title = homeItems.titles[homeItems.selection]
                     manualInput.memo = homeItems.memos[homeItems.selection]
-                    manualInput.page = homeItems.pages[homeItems.selection]
                     manualInput.read = homeItems.reads[homeItems.selection]
                 })
                 .onAppear(perform:{
@@ -137,7 +137,7 @@ struct HomeMoneyBooksView: View {
                 List {
                     Section(header: Text("読書中").font(.callout)) {
                         selectionTitls
-                        MemoField(read: $manualInput.read, total: $manualInput.page, memo: $manualInput.memo)
+                        MemoField(read: $manualInput.read, memo: $manualInput.memo)
                             .onTapGesture {
                                 UIApplication.shared.endEditing()
                                 homeItems.closedSelector = false
@@ -147,6 +147,7 @@ struct HomeMoneyBooksView: View {
                         bookshelf
                     }
                 }
+                .listStyle(SidebarListStyle())
             }
             .toolbar(content: {
                 ToolbarItem(placement: .automatic){
@@ -156,15 +157,13 @@ struct HomeMoneyBooksView: View {
                             addItem()
                         }, label: {
                             Text("追加")
-                                .font(.largeTitle)
                         })
                     }else{
                         Button(action: {
                             UIApplication.shared.endEditing()
                             updateItem()
-                        }, label: {
+                    }, label: {
                             Text("更新")
-                                .font(.largeTitle)
                         })
                     }
                 }
@@ -197,11 +196,14 @@ struct HomeMoneyBooksView: View {
             if($0.save == 0){
                 homeItems.titles.insert($0.title ?? "", at: 0)
                 homeItems.memos.insert($0.memo ?? "", at: 0)
-                homeItems.pages.insert($0.page, at: 0)
-                homeItems.reads.insert($0.read, at: 0)
+                homeItems.pages.insert(Int($0.page), at: 0)
+                homeItems.reads.insert(String($0.read)+"ページ", at: 0)
             }
             homeItems.numberOfDisplay[Int($0.save)] += 1
         }
+        manualInput.title = homeItems.titles[0]
+        manualInput.read = homeItems.reads[0]
+        homeItems.selection = 0
     }
     
     private func addItem() {
@@ -211,15 +213,15 @@ struct HomeMoneyBooksView: View {
             newItem.webImg = ""
             newItem.img = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
             newItem.title = homeItems.newTitle
-            newItem.author =  "未入力"
+            newItem.author =  "不明"
             newItem.regular = Int16(0)
             newItem.buy = Date()
             newItem.save = Int16(0)
             newItem.memo = manualInput.memo
             newItem.impressions =  ""
-            newItem.favorite = Int16(0)
-            newItem.page = manualInput.page
-            newItem.read = manualInput.read
+            newItem.favorite = Int16(1)
+            newItem.page = DataProperty().insertInt16(string: manualInput.page, unit: .page)
+            newItem.read = DataProperty().insertInt16(string: manualInput.read, unit: .page)
             do {
                 try viewContext.save()
             } catch {
@@ -236,7 +238,7 @@ struct HomeMoneyBooksView: View {
         do {
             let editItem = try self.viewContext.fetch(fetchRequest).first
             editItem?.memo = manualInput.memo
-            editItem?.read = manualInput.read
+            editItem?.read = DataProperty().insertInt16(string: manualInput.read, unit: .page)
             try self.viewContext.save()
         } catch {
             let nsError = error as NSError
@@ -248,22 +250,20 @@ struct HomeMoneyBooksView: View {
 
 
 struct MemoField: View {
-    @Binding var read: Double
-    @Binding var total: Double
+    @Binding var read: String
     @Binding var memo: String
+
     var body: some View {
         VStack {
-            Group {
-                Slider(value: $read, in: 0...total, step: 1)
-                Stepper(value: $read, in: 0...total) {
-                    HStack {
-                        Text("ページ数")
-                        Spacer()
-                        Text("\(Int(read))" + "  /  " + "\(Int(total))"+"ページ")
-                        Spacer()
-                    }
-                }
-            }.frame(height: 30)
+            HStack {
+                Text("どこまで読んだか？")
+                TextField("ページ数は？", text: $read,
+                          onEditingChanged: { begin in
+                            read = DataProperty().checkerUnit(type: read, unit: .page)
+                          })
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.trailing)
+            }
             TextEditor(text: $memo)
                 .frame(height: 140)
         }

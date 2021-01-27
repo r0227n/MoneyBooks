@@ -26,18 +26,28 @@ class DataProperty: ObservableObject {
     
     @Published var isShowMenu = false
     
-    func checkerYen(typeMoney:String) -> String {
-        var indexOfYen = typeMoney
-        while indexOfYen.hasPrefix("0") != false { // 文字列の先頭を「０以上」の数字にする
-            indexOfYen = String(indexOfYen.dropFirst(1))
-        }
-        if(indexOfYen.contains("円")) {
-            indexOfYen = String(indexOfYen.dropLast(1))
-        } else if(indexOfYen.count > 0){
-            indexOfYen += "円"
-        }
-        return indexOfYen
+    enum ChekeItem: String {
+        case money = "円"
+        case page = "ページ"
     }
+    
+    func checkerUnit(type:String, unit: ChekeItem) -> String {
+        var indexOfUnit = type
+        while indexOfUnit.hasPrefix("0") != false { // 文字列の先頭を「０以上」の数字にする
+            indexOfUnit = String(indexOfUnit.dropFirst(1))
+        }
+        if(indexOfUnit.contains(unit.rawValue)) {
+            indexOfUnit = String(indexOfUnit.dropLast(unit.rawValue.count))
+        } else if(indexOfUnit.count > 0){
+            indexOfUnit += unit.rawValue
+        }
+        return indexOfUnit
+    }
+    
+    func insertInt16(string: String, unit: ChekeItem) -> Int16 {
+        return Int16(checkerUnit(type: string, unit: unit)) ?? 0
+    }
+        
     
     func dataSetMoney(setMoney: String) -> Int16 {
         var recordOfMoney = setMoney
