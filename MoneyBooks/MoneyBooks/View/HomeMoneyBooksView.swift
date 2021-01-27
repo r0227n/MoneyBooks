@@ -100,7 +100,7 @@ struct HomeMoneyBooksView: View {
                     ForEach(0 ..< homeItems.titles.count) { num in
                         Text(homeItems.titles[num])
                     }
-                }
+                }.id(homeItems.titles.count)
                 .onChange(of: homeItems.selection, perform: { select in
                     manualInput.title = homeItems.titles[homeItems.selection]
                     manualInput.memo = homeItems.memos[homeItems.selection]
@@ -153,6 +153,7 @@ struct HomeMoneyBooksView: View {
                 ToolbarItem(placement: .automatic){
                     if(homeItems.selection+1 == homeItems.titles.count){
                         Button(action: {
+                            homeItems.closedSelector = false
                             UIApplication.shared.endEditing()
                             addItem()
                         }, label: {
@@ -160,6 +161,7 @@ struct HomeMoneyBooksView: View {
                         })
                     }else{
                         Button(action: {
+                            homeItems.closedSelector = false
                             UIApplication.shared.endEditing()
                             updateItem()
                     }, label: {
@@ -212,7 +214,7 @@ struct HomeMoneyBooksView: View {
             newItem.id = UUID().uuidString
             newItem.webImg = ""
             newItem.img = UIImage(systemName: "nosign")!.jpegData(compressionQuality: 0.80)
-            newItem.title = homeItems.newTitle
+            newItem.title = homeItems.newTitle.count == 0 ? "不明" : homeItems.newTitle
             newItem.author =  "不明"
             newItem.regular = Int16(0)
             newItem.buy = Date()

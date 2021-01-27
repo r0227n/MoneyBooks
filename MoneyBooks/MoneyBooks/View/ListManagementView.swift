@@ -18,6 +18,7 @@ struct ListManagementView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var numberOfBooks:Int
     @Binding var listViewTitle:String
+
     @State var openBarcodeView:Bool = false
     @State var bottomBarHidden:Bool = false
     @StateObject var manualInput = ManualInput()
@@ -79,6 +80,7 @@ struct ListManagementView: View {
                             Group{
                                 if(item.webImg?.count ?? 0 != 0){
                                     WebImage(url: URL(string: item.webImg!))
+                                        .resizable()
                                 }else{
                                     Image(uiImage: (UIImage(data: item.img ?? .init(count:0)) ?? UIImage(systemName: "nosign"))!)
                                         .resizable()
@@ -87,9 +89,9 @@ struct ListManagementView: View {
                             .scaledToFit()
                             .frame(width: 50, height:50)
                             .padding(20)
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 5) {
                                 Text(item.title!)
-                                    .font(.title)
+                                    .font(.body)
                                     .underline()
                                 Text(item.author!)
                                     .font(.footnote)
@@ -158,5 +160,6 @@ struct ListManagementView: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
+        
     }
 }

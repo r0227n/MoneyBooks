@@ -2,7 +2,7 @@
 
 import SwiftUI
 import CoreData
-import SDWebImageSwiftUI
+
 
 struct EditBookDataView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -33,7 +33,16 @@ struct EditBookDataView: View {
         GeometryReader { geometry in
             ZStack {
                 List {
-                    MinimumLayout(imageData: $imageData, imageURL: $imageURL, title: $title, author: $author, regular: $regular, buy: $buy, save: $save, page: $page, status: $manualInput.managementStatus, isShowMenu: $dataProperty.isShowMenu)
+                    MinimumLayout(imageData: $imageData,
+                                  imageURL: $imageURL,
+                                  title: $title,
+                                  author: $author,
+                                  regular: $regular,
+                                  buy: $buy,
+                                  save: $save,
+                                  page: $page,
+                                  status: $manualInput.managementStatus,
+                                  isShowMenu: $dataProperty.isShowMenu)
                     
                     Section(header: Text("メモ").font(.callout)){
                         MemoField(read: $read, memo: $memo)
@@ -50,7 +59,7 @@ struct EditBookDataView: View {
         }
         .onChange(of: dataProperty.isShowMenu, perform: { value in
             if(value != true){
-                (imageData, imageURL) = updateData(loadImage: dataProperty.setImage, url: imageURL)
+                (imageData, imageURL) = dataProperty.updateData(loadImage: dataProperty.setImage,  data: imageData, url: imageURL)
             }
         })
         .navigationBarBackButtonHidden(true)
@@ -88,15 +97,7 @@ struct EditBookDataView: View {
             dataProperty.unfavorite = 5 - favorite
         })
     }
-    func updateData(loadImage: UIImage?, url: String) -> (Data, String) {
-        if(loadImage != nil){
-            let deleteOfURL = ""
-            let convertData: Data = (loadImage?.jpegData(compressionQuality: 0.80))!
-            return (convertData, deleteOfURL)
-        }else{
-            return (imageData, url)
-        }
-    }
+    
     func updateItem() {
         let fetchRequest: NSFetchRequest<Books> = Books.fetchRequest()
         fetchRequest.predicate = NSPredicate.init(format: "id=%@", id)
@@ -105,14 +106,16 @@ struct EditBookDataView: View {
             editItem?.id = id
             editItem?.webImg = imageURL
             editItem?.img = imageData
-            editItem?.title = title
-            editItem?.author =  author
-            editItem?.regular = dataProperty.dataSetMoney(setMoney: regular)
+            editItem?.title = title.count == 0 ? "不明" : title
+            editItem?.author =  author.count == 0 ? "不明" : author
+            editItem?.regular = dataProperty.insertInt16(string: regular, unit: .money)
             editItem?.buy = buy
             editItem?.save = Int16(save)
             editItem?.memo = memo
             editItem?.impressions =  impressions
             editItem?.favorite = Int16(favorite)
+            editItem?.page = dataProperty.insertInt16(string: page, unit: .page)
+            editItem?.read = dataProperty.insertInt16(string: read, unit: .page)
             try self.viewContext.save()
         } catch {
             print(error)
@@ -120,122 +123,3 @@ struct EditBookDataView: View {
         self.presentationMode.wrappedValue.dismiss()
     }
 }
-
-struct MinimumLayout: View {
-    @Binding var imageData: Data
-    @Binding var imageURL: String
-    @Binding var title: String
-    @Binding var author: String
-    @Binding var regular: String
-    @Binding var buy: Date
-    @Binding var save: Int
-    @Binding var page: String
-    
-    @Binding var status: [String]
-    @Binding var isShowMenu: Bool
-    
-    var body: some View {
-        Section(header: Text("書籍情報").font(.callout)){
-            Group {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        UIApplication.shared.endEditing()
-                        withAnimation {
-                            isShowMenu.toggle()
-                        }
-                    }, label: {
-                        if(imageURL.count != 0){
-                            WebImage(url: URL(string: imageURL)!)
-                        }else{
-                            Image(uiImage: UIImage(data: imageData)!)
-                                .resizable()
-                        }
-                    })
-                    .scaledToFit()
-                    .frame(width: 200, height: 200, alignment: .center)
-                    Spacer()
-                }
-                HStack {
-                    Text("タイトル")
-                    TextField("本のタイトルを入力してください", text: $title)
-                }
-                HStack {
-                    Text("作者")
-                    TextField("作者を入力してください", text: $author)
-                }
-                Group {
-                    HStack {
-                        Text("定価")
-                        TextField("定価を入力してください", text: $regular,
-                                  onEditingChanged: { begin in
-                                    regular = DataProperty().checkerUnit(type: regular, unit: .money)
-                              })
-                    }
-                    HStack {
-                        Text("ページ数")
-                        TextField("ページ数は？", text: $page,
-                                  onEditingChanged: { begin in
-                                    page = DataProperty().checkerUnit(type: page, unit: .page)
-                                  })
-                    }
-                }
-                .keyboardType(.numberPad)
-            }
-            .multilineTextAlignment(.trailing)
-            .onTapGesture {
-                UIApplication.shared.endEditing()
-            }
-            
-            DatePicker("購入日", selection: $buy, displayedComponents: .date)
-
-            Picker(selection: $save, label: Text("管理先を指定してください")) {
-                ForEach(0 ..< status.count) { num in
-                    Text(status[num])
-                }
-            }
-        }
-    }
-}
-
-struct ReadSection: View {
-    @Binding var impressions: String
-    @Binding var favorite: Int
-    @Binding var unfavorite: Int
-    var body: some View {
-        Section(header: Text("あなたにとってこの本は？").font(.callout)){
-            HStack(spacing: 10) {
-                ForEach(0..<favorite, id:\.self){ yellow in
-                    Image(systemName: "star.fill")
-                        .onTapGesture(perform: {
-                            favorite = yellow + 1
-                            unfavorite = 4 - yellow
-                        })
-                        .foregroundColor(.yellow)
-                        .padding()
-                }
-                ForEach(0..<unfavorite, id: \.self){ gray in
-                    Image(systemName: "star.fill")
-                        .onTapGesture(perform: {
-                            favorite += (gray + 1)
-                            unfavorite -= (gray + 1)
-                        })
-                        .padding()
-                        .foregroundColor(.gray)
-                }
-            }
-        }
-        Section(header: Text("感想")){
-            TextEditor(text: $impressions)
-                .frame(height: 140)
-                .onTapGesture {
-                    UIApplication.shared.endEditing()
-                }
-        }
-        
-    }
-}
-
-
-
-

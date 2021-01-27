@@ -19,7 +19,7 @@ class ManualInput : ObservableObject {
     @Published var memo: String = ""
     @Published var impressions: String = ""
     @Published var favorite: Int = 1
-    @Published var page: String = "1000"
+    @Published var page: String = "1000ページ"
     @Published var read: String = "0"  // CoreData Int16
     
     var managementStatus = ["読書中","読了", "積み本", "欲しい本"]
@@ -45,6 +45,7 @@ struct ResultSearchBookView: View {
                                          title: $manualInput.title,
                                          author: $manualInput.author,
                                          regular: $manualInput.regular,
+                                         page: $manualInput.page,
                                          savePoint: $storage,
                                          openAdd: $openResult),
             isActive: $addTypeBookData,
@@ -72,6 +73,7 @@ struct ResultSearchBookView: View {
                 manualInput.title = i.title
                 manualInput.author = i.authors
                 manualInput.regular = DataProperty().checkerUnit(type: price, unit: .money)
+                manualInput.page = i.pageCount
                 addTypeBookData.toggle()
             }
         }

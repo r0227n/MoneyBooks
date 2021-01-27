@@ -36,8 +36,8 @@ class GoogleBooksAPIViewModel : ObservableObject {
                     authors = ["データなし"]
                 }
 
-                let pageCount = i["volumeInfo"]["pageCount"].int
-                print(pageCount ?? 0)
+                var pageCount = i["volumeInfo"]["pageCount"].stringValue
+                pageCount = pageCount.count == 0 ? "" : pageCount + "ページ"
                 
                 var author = ""
                 
@@ -53,7 +53,7 @@ class GoogleBooksAPIViewModel : ObservableObject {
                 let url1 = i["volumeInfo"]["previewLink"].stringValue
                 
                 DispatchQueue.main.async {
-                    self.data.append(Book(id: id, title: title, authors: author, pageCount: pageCount ?? 0, desc: description, imgUrl: imurl, url: url1))
+                    self.data.append(Book(id: id, title: title, authors: author, pageCount: pageCount, desc: description, imgUrl: imurl, url: url1))
                 }
             }
             //self.setUpManualInput()
@@ -62,7 +62,7 @@ class GoogleBooksAPIViewModel : ObservableObject {
     
     func setUpManualInput() {
         DispatchQueue.main.async {
-            self.data.append(Book(id: "", title: "データを手入力", authors: "",pageCount: 0 ,desc: "書籍を見つけることができなかったた、入力してください。", imgUrl: "", url: ""))
+            self.data.append(Book(id: "", title: "データを手入力", authors: "",pageCount: "0" ,desc: "書籍を見つけることができなかったた、入力してください。", imgUrl: "", url: ""))
         }
     }
 }
@@ -71,7 +71,7 @@ struct Book : Identifiable {
     var id : String
     var title : String
     var authors : String
-    var pageCount: Int
+    var pageCount: String
     var desc : String
     var imgUrl : String
     var url : String

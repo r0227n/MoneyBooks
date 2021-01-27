@@ -5,7 +5,6 @@
 //  Created by RyoNishimura on 2021/01/23.
 //
 
-import Foundation
 import SwiftUI
 
 class DataProperty: ObservableObject {
@@ -45,7 +44,11 @@ class DataProperty: ObservableObject {
     }
     
     func insertInt16(string: String, unit: ChekeItem) -> Int16 {
-        return Int16(checkerUnit(type: string, unit: unit)) ?? 0
+        if((string.hasPrefix("0"+unit.rawValue) || string.count == 0)){
+            return Int16(0)
+        }else{
+            return Int16(checkerUnit(type: string, unit: unit)) ?? Int16(string)!
+        }
     }
         
     
@@ -58,6 +61,18 @@ class DataProperty: ObservableObject {
             return 0
         }
     }
+    
+    func updateData(loadImage: UIImage?, data: Data, url: String) -> (Data, String) {
+        if(loadImage != nil){
+            let deleteOfURL = ""
+            let convertData: Data = (loadImage?.jpegData(compressionQuality: 0.80))!
+            return (convertData, deleteOfURL)
+        }else{
+            return (data, url)
+        }
+    }
+    
+    
 }
 
 

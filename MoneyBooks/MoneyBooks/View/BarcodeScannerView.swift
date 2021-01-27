@@ -40,6 +40,7 @@ struct BarcodeScannerView: View {
                                                  title: $manualInput.title,
                                                  author: $manualInput.author,
                                                  regular: $manualInput.regular,
+                                                 page: $manualInput.page,
                                                  savePoint: $openCollectionViewNumber,
                                                  openAdd: $openBarCode),
                     isActive: $pushNaviButton,
