@@ -217,7 +217,7 @@ struct HomeMoneyBooksView: View {
             newItem.title = homeItems.newTitle.count == 0 ? "不明" : homeItems.newTitle
             newItem.author =  "不明"
             newItem.regular = Int16(0)
-            newItem.buy = Date()
+            newItem.buy = DataProperty().JapanTimeZone()
             newItem.save = Int16(0)
             newItem.memo = manualInput.memo
             newItem.impressions =  ""

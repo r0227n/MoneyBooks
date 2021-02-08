@@ -25,7 +25,7 @@ struct ListManagementView: View {
     
     @State var coreDataImage:Data = .init(count:0)
     @State var coreDataID: String = ""
-    
+    var dataProperty = DataProperty()
     var body: some View {
         NavigationLink(
             destination: EditBookDataView(id: $coreDataID,

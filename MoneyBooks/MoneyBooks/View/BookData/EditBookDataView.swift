@@ -109,7 +109,7 @@ struct EditBookDataView: View {
             editItem?.title = title.count == 0 ? "不明" : title
             editItem?.author =  author.count == 0 ? "不明" : author
             editItem?.regular = dataProperty.insertInt16(string: regular, unit: .money)
-            editItem?.buy = buy
+            editItem?.buy = buy  
             editItem?.save = Int16(save)
             editItem?.memo = memo
             editItem?.impressions =  impressions

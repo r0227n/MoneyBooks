@@ -63,6 +63,7 @@ struct AddBookDataView: View {
         .toolbar(content: {
             ToolbarItem(placement: .navigationBarTrailing){ // ナビゲーションバー左
                 Button(action: {
+                    print("toolbar",manualInput.buy)
                     addItem()
                 }, label: {
                     Text("追加")
@@ -89,9 +90,12 @@ struct AddBookDataView: View {
                     }
                 })
         )
+        .onAppear(perform:{
+            manualInput.buy = dataProperty.JapanTimeZone()
+        })
     }
 
-    private func addItem() {
+    func addItem() {
         withAnimation {
             let newItem = MoneyBooks.Books(context: viewContext)
             var pickedImage = dataProperty.setImage?.jpegData(compressionQuality: 0.80)  // UIImage -> Data
@@ -105,7 +109,7 @@ struct AddBookDataView: View {
             newItem.title = title.count == 0 ? "不明" : title
             newItem.author =  author.count == 0 ? "不明" : author
             newItem.regular = dataProperty.dataSetMoney(setMoney: regular)
-            newItem.buy = dataProperty.buy
+            newItem.buy = manualInput.buy
             newItem.save = Int16(savePoint)
             newItem.memo = dataProperty.memo
             newItem.impressions =  dataProperty.impressions
@@ -205,7 +209,6 @@ public struct MinimumLayout: View {
                 print("url",imageData)
             })
         }
-        
     }
 }
 
