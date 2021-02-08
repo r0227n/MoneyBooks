@@ -6,61 +6,95 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct ListManagementView: View {
     @FetchRequest(
-        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.stateOfControl, ascending: true) ],
+        sortDescriptors: [ NSSortDescriptor(keyPath: \Books.id, ascending: true) ],
         animation: .default)
     var items: FetchedResults<Books>
     @Environment(\.managedObjectContext) private var viewContext
-    @State private var image:Data = .init(count:0)
-
     
     @Environment(\.presentationMode) var presentationMode
     @Binding var numberOfBooks:Int
     @Binding var listViewTitle:String
-    @Binding var openBarcodeView:Bool
-    @Binding var bottomBarHidden:Bool
-    @Binding var collectionCountDown: Bool
+
+    @State var openBarcodeView:Bool = false
+    @State var bottomBarHidden:Bool = false
     @StateObject var manualInput = ManualInput()
-    @State var notImage:String = "" // 仕方なく
     
-    @State var argListNaviTitle:String = "編集画面"
-    
+    @State var coreDataImage:Data = .init(count:0)
+    @State var coreDataID: String = ""
+    var dataProperty = DataProperty()
     var body: some View {
         NavigationLink(
-            destination: TypeBookDataView(webImg: $notImage,
-                                          changeNaviTitle: $argListNaviTitle,
+            destination: EditBookDataView(id: $coreDataID,
+                                          imageData: $coreDataImage,
+                                          imageURL: $manualInput.url,
                                           title: $manualInput.title,
                                           author: $manualInput.author,
-                                          regularPrice: $manualInput.regularPrice,
-                                          dateOfPurchase: $manualInput.dateOfPurchase,
-                                          stateOfControl: $numberOfBooks,
-                                          yourValue: $manualInput.yourValue,
+                                          regular: $manualInput.regular,
+                                          buy: $manualInput.buy,
+                                          save: $manualInput.save,
                                           memo: $manualInput.memo,
                                           impressions: $manualInput.impressions,
                                           favorite: $manualInput.favorite,
-                                          unfavorite: $manualInput.unfavorite),
+                                          page: $manualInput.page,
+                                          read: $manualInput.read),
             isActive: $bottomBarHidden,
             label: {})
         List{
             ForEach(items) { item in
-                if(item.stateOfControl == numberOfBooks){
+                if(item.save == numberOfBooks){
                     Button(action: {
                         // CoreDataからデータを引き抜き、変数に入れ替える
-                        (manualInput.title, manualInput.author, manualInput.dateOfPurchase, manualInput.regularPrice,manualInput.yourValue, manualInput.memo, manualInput.impressions, manualInput.favorite, manualInput.unfavorite)
-                            = readCoreData(title: item.title!, author: item.author!, dateOfPurchase: item.dateOfPurchase!, regularPrice: item.regularPrice, yourValue: item.yourValue, memo: item.memo!, impressions: item.impressions!, favorite: item.favorite)
+                        (coreDataID,
+                         coreDataImage,
+                         manualInput.url,
+                         manualInput.title,
+                         manualInput.author,
+                         manualInput.regular,
+                         manualInput.buy,
+                         manualInput.save,
+                         manualInput.memo,
+                         manualInput.impressions,
+                         manualInput.favorite,
+                         manualInput.page,
+                         manualInput.read)
+                            = ReadCoreData(id: item.id!,
+                                           image: item.img!,
+                                           url: item.webImg!,
+                                           title: item.title!,
+                                           author: item.author!,
+                                           regular: item.regular,
+                                           buy: item.buy!,
+                                           save: item.save,
+                                           memo: item.memo!,
+                                           impression: item.impressions!,
+                                           favorite: item.favorite,
+                                           page: item.page,
+                                           read: item.read)
                         bottomBarHidden.toggle()
                     }, label: {
-                        HStack {
-                            Image(uiImage: UIImage(data: item.img ?? self.image)!)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height:50)
-                                .padding(20)
-                            VStack {
+                        HStack(spacing: 5) {
+                            Group{
+                                if(item.webImg?.count ?? 0 != 0){
+                                    WebImage(url: URL(string: item.webImg!))
+                                        .resizable()
+                                }else{
+                                    Image(uiImage: (UIImage(data: item.img ?? .init(count:0)) ?? UIImage(systemName: "nosign"))!)
+                                        .resizable()
+                                }
+                            }
+                            .scaledToFit()
+                            .frame(width: 50, height:50)
+                            .padding(20)
+                            VStack(alignment: .leading, spacing: 5) {
                                 Text(item.title!)
+                                    .font(.body)
+                                    .underline()
                                 Text(item.author!)
+                                    .font(.footnote)
                             }
                         }
                     })
@@ -84,7 +118,6 @@ struct ListManagementView: View {
                     }
                 })
             }
-            // ListManagementView ⇄ BarcodeScannerViewの入れ替えでボタンがスムーズに表示するため（ないと表示に遅延が発生する）
             ToolbarItemGroup(placement: .bottomBar) {
                 Button(action: {
                     openBarcodeView.toggle()
@@ -95,6 +128,11 @@ struct ListManagementView: View {
                 Spacer()
             }
         })
+        .sheet(isPresented: $openBarcodeView,
+               content: {
+                BarcodeScannerView(openCollectionViewNumber: $numberOfBooks,
+                                   openBarCode: $openBarcodeView)
+        })  // ← HomeMoneyBooksViewで同様の宣言を行なっているが、ここでも宣言しないとbottombarが消えるバグがある
         .gesture(
             DragGesture(minimumDistance: 0.5, coordinateSpace: .local)
                 .onEnded({ swipe in // end time
@@ -105,24 +143,14 @@ struct ListManagementView: View {
         )
     }
     
-    
-    private func readCoreData(title:String, author:String, dateOfPurchase:Date, regularPrice:Int16, yourValue:Int16, memo:String, impressions:String, favorite:Int16)
-    -> (String,String,Date,String,String,String,String,Int,Int){
-        
-        var convertRegular:String = ""
-        var convertYour:String = ""
-        if(regularPrice > 0){
-            convertRegular = String(regularPrice) + "円"
-        }
-        if(yourValue > 0){
-            convertYour = String(yourValue) + "円"
-        }
-        return(title, author, dateOfPurchase, convertRegular, convertYour, memo, impressions, Int(favorite), (5-Int(favorite)))
+    private func ReadCoreData(id: String, image: Data, url: String, title: String, author: String, regular: Int16, buy: Date, save: Int16, memo: String, impression: String, favorite: Int16, page: Int16, read: Int16)
+    ->(String, Data, String, String, String, String, Date, Int, String, String, Int, String, String) {
+        let conbertRegular: String = String(regular) + "円"
+        return (id, image, url, title, author, conbertRegular, buy, Int(save), memo, impression, Int(favorite), String(page)+"ページ", String(read)+"ページ")
     }
 
     
     func deleteItems(offsets: IndexSet) {
-        collectionCountDown.toggle()
         withAnimation {
             offsets.map { items[$0] }.forEach(viewContext.delete)
             do {
@@ -132,5 +160,6 @@ struct ListManagementView: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
+        
     }
 }
