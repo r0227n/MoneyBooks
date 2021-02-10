@@ -211,8 +211,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 				"ja-JP",
+				Base,
 			);
 			mainGroup = 2A4E8F7E25834B4A00C0C24D;
 			productRefGroup = 2A4E8F8825834B4A00C0C24D /* Products */;

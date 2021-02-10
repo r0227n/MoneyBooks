@@ -23,7 +23,6 @@ class GoogleBooksAPIViewModel : ObservableObject {
             let json = try! JSON(data: data!)
             guard let items = json["items"].array else {
                 print("error")
-                //self.setUpManualInput()
                 return
             }
             for i in items{
@@ -56,14 +55,7 @@ class GoogleBooksAPIViewModel : ObservableObject {
                     self.data.append(Book(id: id, title: title, authors: author, pageCount: pageCount, desc: description, imgUrl: imurl, url: url1))
                 }
             }
-            //self.setUpManualInput()
         }.resume()
-    }
-    
-    func setUpManualInput() {
-        DispatchQueue.main.async {
-            self.data.append(Book(id: "", title: "データを手入力", authors: "",pageCount: "0" ,desc: "書籍を見つけることができなかったた、入力してください。", imgUrl: "", url: ""))
-        }
     }
 }
 

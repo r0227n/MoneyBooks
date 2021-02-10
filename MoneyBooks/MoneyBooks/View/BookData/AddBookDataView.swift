@@ -90,9 +90,6 @@ struct AddBookDataView: View {
                     }
                 })
         )
-        .onAppear(perform:{
-            manualInput.buy = dataProperty.JapanTimeZone()
-        })
     }
 
     func addItem() {
