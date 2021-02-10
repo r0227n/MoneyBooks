@@ -13,7 +13,7 @@ class ManualInput : ObservableObject {
     @Published var url: String = ""
     @Published var title: String = ""
     @Published var author: String = ""
-    @Published var buy: Date = Date()
+    @Published var buy: Date = Date(timeIntervalSinceNow: 60 * 60 * 9)
     @Published var save = 1
     @Published var regular: String = ""
     @Published var memo: String = ""

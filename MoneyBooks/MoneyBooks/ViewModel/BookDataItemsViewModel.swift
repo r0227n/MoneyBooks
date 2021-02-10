@@ -15,7 +15,7 @@ class DataProperty: ObservableObject {
     @Published var title: String = ""
     @Published var author: String = ""
     @Published var regular: String = ""
-    @Published var buy: Date = Date()  
+    @Published var buy: Date = Date(timeIntervalSinceNow: 60 * 60 * 9)
     
     @Published var save:Int = 0
     @Published var memo: String = ""
@@ -30,17 +30,6 @@ class DataProperty: ObservableObject {
     enum ChekeItem: String {
         case money = "円"
         case page = "ページ"
-    }
-    func JapanTimeZone() -> Date {
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeStyle = .medium
-        dateFormatter.dateStyle = .short
-        dateFormatter.locale = Locale(identifier: "ja_JP")
-        let now = dateFormatter.string(from: Date())
-        let time:[String] = now.components(separatedBy: CharacterSet(charactersIn: " /:"))
-        let calendar = Calendar(identifier: .gregorian)
-        let japanCalendar = calendar.date(from: DateComponents(year: Int(time[0]), month: Int(time[1]), day: Int(time[2]), hour: Int(time[3])! + 9, minute: Int(time[4]), second: Int(time[5])))!
-        return japanCalendar
     }
 
     func checkerUnit(type:String, unit: ChekeItem) -> String {
@@ -100,11 +89,3 @@ extension UIApplication {
         )
     }
 }
-
-
-
-
-
-
-
-

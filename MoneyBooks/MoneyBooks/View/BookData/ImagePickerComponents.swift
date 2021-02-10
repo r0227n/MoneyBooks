@@ -17,7 +17,6 @@ struct MenuViewWithinSafeArea: View {
         GeometryReader { geometry in
             withAnimation{
                 ImagePicker(image: $setImage, isShowDown: $isShowMenu)
-                    //.foregroundColor(Color.red.opacity(0.8))
                     .frame(height: bottomSafeAreaInsets)
                     .edgesIgnoringSafeArea(.bottom)
                     .offset(x: 0, y: isShowMenu ? 0 : bottomSafeAreaInsets)
@@ -43,13 +42,11 @@ struct ImagePicker: UIViewControllerRepresentable {
             if let uiImage = info[.originalImage] as? UIImage {
                 parent.image = uiImage
             }
-            //parent.presentationMode.wrappedValue.dismiss()
             parent.isShowDown.toggle()
         }
         
         // push cansel button
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            //parent.presentationMode.wrappedValue.dismiss()
             parent.isShowDown.toggle()
         }
     }
