@@ -31,8 +31,8 @@ struct ScannerView: UIViewControllerRepresentable {
         }
         
         func didFind(barcode: String) {
-            scannerView.scannedCode = barcode  // ScannerViewController.swiftで読み取ったバーコードの数値をscannedCodeに代入
-
+            // ScannerViewController.swiftで読み取ったバーコードの数値をscannedCodeに代入
+            scannerView.scannedCode = barcode
         }
         
 //        func didSurface(error: CameraError) {

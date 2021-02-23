@@ -27,6 +27,7 @@ struct BarcodeScannerView: View {
                 ScannerView(scannedCode: $scannedCode)
                     .aspectRatio(contentMode: .fill)
                     .edgesIgnoringSafeArea(.all)    //すべてのセーフエリアを無視
+                // MARK: -- GoogleBooksAPIのレスポンス内容をリスト表示
                 NavigationLink(
                     destination: ResultSearchBookView(request: $isbn,
                                                       price: $manualInput.regular,
@@ -34,7 +35,7 @@ struct BarcodeScannerView: View {
                                                       openResult: $openBarCode),
                     isActive: $codeReadingCompleted,
                     label: { })
-                
+                // MARK: -- 手入力画面に遷移
                 NavigationLink(
                     destination: AddBookDataView(imageURL: $manualInput.url,
                                                  title: $manualInput.title,

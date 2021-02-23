@@ -40,6 +40,7 @@ struct ResultSearchBookView: View {
     
     @State var addTypeBookData:Bool = false
     var body : some View{
+        // BottomBarが消えるバグ対策（ListのContentにNavigationLinkを宣言すると消える）
         NavigationLink(
             destination: AddBookDataView(imageURL: $manualInput.url,
                                          title: $manualInput.title,

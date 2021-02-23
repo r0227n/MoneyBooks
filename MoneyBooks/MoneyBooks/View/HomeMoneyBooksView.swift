@@ -100,7 +100,8 @@ struct HomeMoneyBooksView: View {
                     ForEach(0 ..< homeItems.titles.count) { num in
                         Text(homeItems.titles[num])
                     }
-                }.id(homeItems.titles.count)
+                }
+                .id(homeItems.titles.count)
                 .onChange(of: homeItems.selection, perform: { select in
                     manualInput.title = homeItems.titles[homeItems.selection]
                     manualInput.memo = homeItems.memos[homeItems.selection]
@@ -129,7 +130,8 @@ struct HomeMoneyBooksView: View {
     
     var body: some View {
         NavigationView {
-            VStack{ // VStack(HStack)でまとめないと何故か表示されない
+            // MARK: -- BottomBarが消えるバグ対策（ListのContentにNavigationLinkを宣言すると消える）
+            VStack{
                 NavigationLink(destination: ListManagementView(numberOfBooks: $managementNumber,
                                                                listViewTitle: $manualInput.managementStatus[managementNumber]),
                                isActive: $openManagmentList,
@@ -191,9 +193,9 @@ struct HomeMoneyBooksView: View {
         }
     }
     
+    // MARK: -- 起動時、カテゴリー別の管理数をカウントする
     private func resetNumber(){
         homeItems.updateNumber()
-        //起動時、カテゴリー別の管理数をカウントする
         items.forEach {
             if($0.save == 0){
                 homeItems.titles.insert($0.title ?? "", at: 0)

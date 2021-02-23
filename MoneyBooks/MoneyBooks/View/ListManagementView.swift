@@ -118,15 +118,15 @@ struct ListManagementView: View {
                     }
                 })
             }
-            ToolbarItemGroup(placement: .bottomBar) {
-                Button(action: {
-                    openBarcodeView.toggle()
-                }, label: {
-                    Image(systemName: "plus.circle.fill")
-                    Text("書籍を追加")
-                })
-                Spacer()
-            }
+//            ToolbarItemGroup(placement: .bottomBar) {
+//                Button(action: {
+//                    openBarcodeView.toggle()
+//                }, label: {
+//                    Image(systemName: "plus.circle.fill")
+//                    Text("書籍を追加")
+//                })
+//                Spacer()
+//            }
         })
         .sheet(isPresented: $openBarcodeView,
                content: {
