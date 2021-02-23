@@ -2,7 +2,7 @@
 
 ## SamplePrograms
 ### SwiftUI-BarcodeScanner
-バーコードを読み取り、数字を表示する。ios13バージョンの書き方だから、動くけど古い。
+バーコードを読み取り、数字を表示する。
 - URL:https://github.com/mjarosch/SwiftUI-BarcodeScanner
 
 ### eBook
